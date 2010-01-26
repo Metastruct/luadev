@@ -1,0 +1,10 @@
+"AddonInfo"
+{
+	"name"				"Default Scripted Entities"
+	"version"			"1.0"
+	"up_date"			"3rd December 2006"
+	"author_name"		"TEAM GARRY"
+	"author_email"		""
+	"author_url"		""
+	"info"				"Adds default scripted entities such as the bouncy ball."
+}
