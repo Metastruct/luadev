@@ -95,7 +95,7 @@ if SERVER then
 			return true
 		end
 	else
-		ErrorNoHalt(os.date().." :(")
+		ErrorNoHalt(os.date().." FIX ME ALREADY\n")
 	end
 	
 	function luadev.RunOnClients(script)
@@ -243,6 +243,13 @@ concommand.Add('lua_send_self',function(a,b,c)
 	if !content then Out("Could not read the file") return end
 	luadev.RunOnSelf(content)
 end,AutoComplete)
+
+
+
+concommand.Add('lua_run_self',function(a,b,c)
+	local thestring = string.Implode("",c) -- todo?
+	luadev.RunOnSelf(thestring)
+end)
 
 
 concommand.Add('lua_send_server',function(a,b,c)
