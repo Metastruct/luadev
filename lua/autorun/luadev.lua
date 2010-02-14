@@ -95,10 +95,11 @@ if SERVER then
 			return true
 		end
 	else
-		ErrorNoHalt(os.date().." FIX ME ALREADY\n")
+		ErrorNoHalt(os.date().." WTF@THIS\n")
 	end
 	
 	function luadev.RunOnClients(script)
+		Out("Sending to clients")
 		datastream.StreamToClients(player.GetAll(),UPLOADCHANDLE,script)
 	end
 	
@@ -138,6 +139,16 @@ if SERVER then
 	end)
 	
 
+	concommand.Add('lua_send_clients',function(a,b,c)
+	if not initraw() then return end
+	local Path=RealFilePath(c[1])
+	if !Path then Out("Could not find the file") return end
+	local content = GiveFileContent(Path)
+	if !content then Out("Could not read the file") return end
+	luadev.RunOnClients(content)
+	end)
+	
+	
 	return
 	
 end
