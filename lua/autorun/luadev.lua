@@ -83,7 +83,7 @@ if SERVER then
 				return false
 			end
 			if HasAcl(ply) and (handler == UPLOADHANDLE or handler == UPLOADCHANDLE) then
-				Out("Transfering script from "..tostring(ply))
+				Out("Downloading script from "..tostring(ply))
 				return true
 			end
 	end)
