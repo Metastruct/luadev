@@ -40,7 +40,7 @@ end
 function IsOneLiner(script)
 	return string.find(script,"\n")==nil
 end
-
+--[[
 -- RAWIO LOADING
 -- This does not block everyone but should be sufficient not to get every script kiddy on your rawio.
 -- TODO: Make safe rawio with read only feature and only on lua folder
@@ -100,6 +100,29 @@ function Access(pl)
 	return LocalPlayer and LocalPlayer():Name() or "??"
 end
 */
+]]
+
+
+-- Stubbed. file.Read is sufficient..
+function InitRawIO()
+	if RAWIO or file.Read then return true end
+end
+
+
+function RealFilePath(name)
+	local RelativePath='../lua/'..name
+	if !file.Exists(RelativePath) then return nil end
+	return RelativePath
+end
+
+function GiveFileContent(fullpath)
+	--A2CON("Reading: "..tostring(fullpath))
+	if fullpath==nil or fullpath=="" then return false end
+	
+	local content=file.Read(fullpath)
+	if content==0 then return false end
+	return content
+end
 
 
 
