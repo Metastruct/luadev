@@ -8,7 +8,7 @@ end
 local _ErrorNoHalt=ErrorNoHalt
 
 module("luadev",package.seeall)
-Msg("Loading LuaDev... ")
+--Msg("Loading LuaDev... ")
 
 CLIENT_TO_CLIENTS="LUADEVC2CS"
 
@@ -139,7 +139,7 @@ end
 
 
 -----------------------------------------------------------------
-if SERVER then MsgN("Loaded! (server)") return end
+if SERVER then return end --MsgN("Loaded! (server)") return end
 -----------------------------------------------------------------
 
 datastream.Hook(SERVER_TO_CLIENT,function (handler, id, encoded, decoded)
@@ -407,4 +407,4 @@ concommand.Add('lua_send_self',function(_,_,c)
 	
 end,AutoComplete)
 
-MsgN("Loaded! (client)")
+--MsgN("Loaded! (client)")
