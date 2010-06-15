@@ -393,7 +393,7 @@ concommand.Add('lua_send_sv',function(_,_,c)
 end,AutoComplete)
 
 
-concommand.Add('lua_send_sh',function(_,_,c)
+concommand.Add('lua_send_clients',function(_,_,c)
 
 	if not InitRawIO() then return end
 	
@@ -409,6 +409,23 @@ concommand.Add('lua_send_sh',function(_,_,c)
 	
 end,AutoComplete)
 
+
+concommand.Add('lua_send_sh',function(_,_,c)
+
+	if not InitRawIO() then return end
+	
+	local Path=RealFilePath(c[2] and TableToString(c) or c[1])
+	
+	if !Path then ErrorNoHalt("Could not find the file\n") return end
+	
+	local content = GiveFileContent(Path)
+	
+	if !content then ErrorNoHalt("Could not read the file\n") return end
+	
+	RunOnClients(content)
+	Run(content)
+	
+end,AutoComplete)
 
 
 
