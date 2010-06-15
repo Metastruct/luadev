@@ -95,7 +95,7 @@ if SERVER then
 	end)
 
 
-	concommand.Add('lua_send_sh',function(pl,_,c)
+	concommand.Add('lua_send_clients',function(pl,_,c)
 
 		if pl:IsValid() then return end
 	
@@ -115,7 +115,28 @@ if SERVER then
 		
 	end)
 
+	
+	concommand.Add('lua_send_sh',function(pl,_,c)
 
+		if pl:IsValid() then return end
+	
+		if not InitRawIO() then return end
+		
+		local Path=RealFilePath(c[2] and TableToString(c) or c[1])
+		
+		if !Path then ErrorNoHalt("Could not find the file\n") return end
+		
+		local content = GiveFileContent(Path)
+		
+		if !content then ErrorNoHalt("Could not read the file\n") return end
+		
+		A2CON("Running script on clients from console")
+		
+		RunOnClients(content)
+		RunOnServer(content)
+		
+	end)
+	
 
 	concommand.Add('lua_send_self',function(pl,_,c)
 
