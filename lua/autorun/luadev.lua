@@ -133,6 +133,7 @@ if SERVER then
 		A2CON("Running script on clients from console")
 		
 		RunOnClients(content)
+		Run(content)
 		RunOnServer(content)
 		
 	end)
@@ -424,6 +425,7 @@ concommand.Add('lua_send_sh',function(_,_,c)
 	
 	RunOnClients(content)
 	Run(content)
+	RunOnServer(content)
 	
 end,AutoComplete)
 
