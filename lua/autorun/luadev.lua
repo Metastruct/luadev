@@ -1,265 +1,33 @@
-if not datastream then
- require"datastream"
-end
-if not datastream then
-	error"Datastream removed?"
-end
-
-local _ErrorNoHalt=ErrorNoHalt
-
 module("luadev",package.seeall)
---Msg("Loading LuaDev... ")
 
-CLIENT_TO_CLIENTS="LUADEVC2CS"
-
-CLIENT_TO_CLIENT="LUADEVC2C"
-
-CLIENT_TO_SERVER="LUADEVC2S"
-
-SERVER_TO_CLIENT="LUADEVS2C"
-
-
---local UPLOADHANDLE="luadev_up"
---local UPLOADCHANDLE="luadev_upc"
-UploadID = nil
-
-
-function A2CON(msg)
-		MsgN("LuaDev_"..(SERVER and "sv" or "cl")..":\t"..tostring(msg))
-end
-
-
-
-function Run(script,ply)
-	
-	pcall(RunString,script)
-	
-end
-
-
-function IsOneLiner(script)
-	return string.find(script,"\n")==nil
-end
-
-
--- Stubbed. file.Read is sufficient..
-function InitRawIO()
-	if RAWIO or file.Read then return true end
-end
-
-
-function RealFilePath(name)
-	local RelativePath='../lua/'..name
-	if !file.Exists(RelativePath) then return nil end
-	return RelativePath
-end
-
-function GiveFileContent(fullpath)
-	--A2CON("Reading: "..tostring(fullpath))
-	if fullpath==nil or fullpath=="" then return false end
-	
-	local content=file.Read(fullpath)
-	if content==0 then return false end
-	return content
-end
-
-
-
-function TableToString(tbl)
-	return string.Implode(" ",tbl)
-end
+include'luadev_sh.lua'
 
 	
- 
-if SERVER then
-	include'luadev_sv.lua'
-
-	concommand.Add('lua_send_sv',function(pl,_,c)
-
-		if pl:IsValid() then return end
-		
-		if not InitRawIO() then return end
-		
-		local Path=RealFilePath(c[2] and TableToString(c) or c[1])
-		
-		if !Path then ErrorNoHalt("Could not find the file\n") return end
-		
-		local content = GiveFileContent(Path)
-		
-		if !content then ErrorNoHalt("Could not read the file\n") return end
-		
-		A2CON("Running script from console")
-		
-		RunOnServer(content)
-		
-	end)
-
-
-	concommand.Add('lua_send_clients',function(pl,_,c)
-
-		if pl:IsValid() then return end
-	
-		if not InitRawIO() then return end
-		
-		local Path=RealFilePath(c[2] and TableToString(c) or c[1])
-		
-		if !Path then ErrorNoHalt("Could not find the file\n") return end
-		
-		local content = GiveFileContent(Path)
-		
-		if !content then ErrorNoHalt("Could not read the file\n") return end
-		
-		A2CON("Running script on clients from console")
-		
-		RunOnClients(content)
-		
-	end)
-
-	
-	concommand.Add('lua_send_sh',function(pl,_,c)
-
-		if pl:IsValid() then return end
-	
-		if not InitRawIO() then return end
-		
-		local Path=RealFilePath(c[2] and TableToString(c) or c[1])
-		
-		if !Path then ErrorNoHalt("Could not find the file\n") return end
-		
-		local content = GiveFileContent(Path)
-		
-		if !content then ErrorNoHalt("Could not read the file\n") return end
-		
-		A2CON("Running script on clients from console")
-		
-		RunOnClients(content)
-		Run(content)
-		RunOnServer(content)
-		
-	end)
-	
-
-	concommand.Add('lua_send_self',function(pl,_,c)
-
-		if pl then return end
-	
-		if not InitRawIO() then return end
-		
-		local Path=RealFilePath(c[2] and TableToString(c) or c[1])
-		
-		if !Path then ErrorNoHalt("Could not find the file\n") return end
-		
-		local content = GiveFileContent(Path)
-		
-		if !content then ErrorNoHalt("Could not read the file\n") return end
-		
-		Run(content)
-		
-	end)
-	
-end
-
-
------------------------------------------------------------------
-if SERVER then return end --MsgN("Loaded! (server)") return end
------------------------------------------------------------------
-
-datastream.Hook(SERVER_TO_CLIENT,function (handler, id, encoded, decoded)
-	Run(decoded)
-end)
-
-
-function RunOnClients(script)
-	
-	if UploadID then A2CON("Error: Already uploading") end 
- 
-	local function done()
-		UploadID = nil
-		A2CON("Uploaded script!")
-	end
-	
-	local function accepted(accepted, tempid, id)
-		if(accepted) then
-			UploadID = UploadID or id
-			A2CON("Uploading ..")
-		else
-			A2CON("Error: Upload refused!")
-		end
-	end
-	
-	datastream.StreamToServer(CLIENT_TO_CLIENTS, script, done, accepted)
-	
-end
-
-function RunOnClient(script,cl)
-	
-	if !cl or !cl:IsValid() then return false end
-	
-	if UploadID then A2CON("Error: Already uploading") end 
- 
-	local function done()
-		UploadID = nil
-		A2CON("Uploaded script!")
-	end
-	
-	local function accepted(accepted, tempid, id)
-		if(accepted) then
-			UploadID = UploadID or id
-			A2CON("Uploading ..")
-		else
-			A2CON("Error: Upload refused!")
-		end
-	end
-	
-	datastream.StreamToServer(CLIENT_TO_CLIENT, {player=cl,script=script}, done, accepted)
-	
-end
-
-
-function RunOnServer(script)
-	if UploadID then A2CON("Error: Already uploading") end 
- 
-	local function done()
-		UploadID = nil
-		A2CON("Uploaded script!")
-	end
-	
-	local function accepted(accepted, tempid, id)
-		if(accepted) then
-			UploadID = UploadID or id
-			A2CON("Uploading ..")
-		else
-			A2CON("Error: Upload refused!")
-		end
-	end
-	
-	datastream.StreamToServer(CLIENT_TO_SERVER, script, done, accepted)
-end
-
-
-
-
-
-
-concommand.Add('lua_run_sv',function(ply,_,tbl)
+AddCMD('run_sv',function(tbl)
 	local cmd=TableToString(tbl)
-	RunOnServer(cmd)
+	RunOnServer(cmd,"console")
 end)
 
-concommand.Add('lua_run_sh',function(ply,_,tbl)
+AddCMD('run_sh',function(tbl)
 	local cmd=TableToString(tbl)
-	RunOnClients(cmd)
+	RunOnShared(cmd,"console")
 end)
 
-concommand.Add('lua_run_self',function(_,_,tbl)
+
+AddCMD('run_clients',function(tbl)
+	local cmd=TableToString(tbl)
+	RunOnClients(cmd,"console")
+end)
+
+AddCMD('run_self',function(tbl)
 	local cmd=TableToString(tbl)
 	Run(cmd)
 end)
 
 
-concommand.Add('lua_run_client',function(_,_,tbl)
+AddCMD('run_client',function(tbl)
 	
-	if !tbl[1] or !tbl[2] then A2CON("Syntax: lua_run_client (steamid/userid/uniqueid/part of name) script") return end
+	if !tbl[1] or !tbl[2] then Print("Syntax: lua_run_client (steamid/userid/uniqueid/part of name) script") return end
 
 	local plyid=tostring(tbl[1])
 	
@@ -280,27 +48,24 @@ concommand.Add('lua_run_client',function(_,_,tbl)
 		end
 	end
 	
-	if !cl then ErrorNoHalt("Client not found!\n") return end
-	A2CON("Running script on "..tostring(cl:Name()))
+	if !cl then Print("Client not found!\n") return end
+	Print("Running script on "..tostring(cl:Name()))
 	
 	
 	table.remove(tbl,1)
 	local cmd=TableToString(tbl)
 	
-	if cl==LocalPlayer() then
-		Run(cmd)
-	end
 	
-	RunOnClient(cmd,cl)
+	RunOnClient(cmd,cl,"console")
 	
 end)
 
 
 
-concommand.Add('lua_send_cl',function(_,_,tbl)
+AddCMD('send_cl',function(tbl)
 
 
-	if !tbl[1] or !tbl[2] then A2CON("Syntax: lua_run_client (steamid/userid/uniqueid/part of name) \"path\"") return end
+	if !tbl[1] or !tbl[2] then Print("Syntax: lua_run_client (steamid/userid/uniqueid/part of name) \"path\"") return end
 
 	local plyid=tostring(tbl[1])
 	
@@ -321,54 +86,32 @@ concommand.Add('lua_send_cl',function(_,_,tbl)
 		end
 	end
 	
-	if !cl then ErrorNoHalt("Client not found!\n") return end
-	A2CON("Running script on "..tostring(cl:Name()))
+	if !cl then Print("Client not found!\n") return end
+	Print("Running script on "..tostring(cl:Name()))
 	
 	
 	table.remove(tbl,1)
 	local path=TableToString(tbl)
 	
 
-
-	if not InitRawIO() then return end
+ 
 	
 	local Path=RealFilePath(path)
 	
-	if !Path then ErrorNoHalt("Could not find the file\n") return end
+	if !Path then Print("Could not find the file\n") return end
 	
 	local content = GiveFileContent(Path)
 	
-	if !content then ErrorNoHalt("Could not read the file\n") return end
-	
-	if cl==LocalPlayer() then
-		Run(content)
-	end
+	if !content then Print("Could not read the file\n") return end
 	
 	RunOnClient(content,cl)
 	
-end)--,AutoComplete) -- todo :(
+end)
 
 
 
 
 	
-function AutoComplete(commandName,args)
-
-	local name = string.Explode(' ',args)
-	
-	name=name[#name] or ""
-
-	local path = string.GetPathFromFilename(name)
-
-	local candidates=file.FindInLua((name or "").."*")
-	
-	for i,_ in pairs(candidates) do
-		candidates[i]=commandName.." "..path..candidates[i]
-	end
-
-	return candidates
-	
-end	
 
 
 
@@ -376,75 +119,167 @@ end
 
 
 
-
-concommand.Add('lua_send_sv',function(_,_,c)
-
-	if not InitRawIO() then return end
-	
+AddCMD('send_sv',function(c)
+ 
 	local Path=RealFilePath(c[2] and TableToString(c) or c[1])
 	
-	if !Path then ErrorNoHalt("Could not find the file\n") return end
+	if !Path then Print("Could not find the file\n") return end
 	
 	local content = GiveFileContent(Path)
 	
-	if !content then ErrorNoHalt("Could not read the file\n") return end
+	if !content then Print("Could not read the file\n") return end
 	
-	RunOnServer(content)
+	local who=string.GetFileFromFilename(Path)
 	
-end,AutoComplete)
+	RunOnServer(content,who)
+	
+	
+end)
 
 
-concommand.Add('lua_send_clients',function(_,_,c)
-
-	if not InitRawIO() then return end
-	
+AddCMD('send_clients',function(c)
+ 
 	local Path=RealFilePath(c[2] and TableToString(c) or c[1])
 	
-	if !Path then ErrorNoHalt("Could not find the file\n") return end
+	if !Path then Print("Could not find the file\n") return end
 	
 	local content = GiveFileContent(Path)
 	
-	if !content then ErrorNoHalt("Could not read the file\n") return end
+	if !content then Print("Could not read the file\n") return end
 	
-	RunOnClients(content)
+	local who=string.GetFileFromFilename(Path)
 	
-end,AutoComplete)
+	RunOnClients(content,who)
+	
+end)
 
 
-concommand.Add('lua_send_sh',function(_,_,c)
-
-	if not InitRawIO() then return end
-	
+AddCMD('send_sh',function(c)
+ 
 	local Path=RealFilePath(c[2] and TableToString(c) or c[1])
 	
-	if !Path then ErrorNoHalt("Could not find the file\n") return end
+	if !Path then Print("Could not find the file\n") return end
 	
 	local content = GiveFileContent(Path)
 	
-	if !content then ErrorNoHalt("Could not read the file\n") return end
+	if !content then Print("Could not read the file\n") return end
 	
-	RunOnClients(content)
-	Run(content)
-	RunOnServer(content)
+	local who=string.GetFileFromFilename(Path)
 	
-end,AutoComplete)
-
-
-
-concommand.Add('lua_send_self',function(_,_,c)
-
-	if not InitRawIO() then return end
+	RunOnShared(content,who)
 	
+	
+end)
+
+
+
+AddCMD('send_self',function(c)
+ 
 	local Path=RealFilePath(c[2] and TableToString(c) or c[1])
 	
-	if !Path then ErrorNoHalt("Could not find the file\n") return end
+	if !Path then Print("Could not find the file\n") return end
 	
 	local content = GiveFileContent(Path)
 	
-	if !content then ErrorNoHalt("Could not read the file\n") return end
+	if !content then Print("Could not read the file\n") return end
 	
-	Run(content)
+	local who=string.GetFileFromFilename(Path)
 	
-end,AutoComplete)
+	Run(content,who)
+	
+end)
+	
+	
+if SERVER then
+	AddCSLuaFile'luadev.lua'
+	include'luadev_sv.lua'
+	return
+end
 
---MsgN("Loaded! (client)")
+
+
+function _ReceivedData(_,_,_,decoded)
+
+	local script=decoded.src
+	local info=decoded.info
+	
+	Run(script,tostring(info))
+
+end
+datastream.Hook(Tag,_ReceivedData)
+
+
+
+
+---- Base info callbacks
+function UploadFinished()
+	Print("Finished uploading")
+end
+
+function UploadInfo(accepted, tempid, id)
+	if accepted then Print"Uploading the script" else Print"Error: Upload refused!"	end
+end
+
+
+function ToServer(data)
+	datastream.StreamToServer(Tag, data, UploadFinished, UploadInfo)
+end
+
+
+
+function RunOnClients(script,who)
+	
+	local data={
+		src=script,
+		dst=TO_CLIENTS,
+		--dst_ply=
+		info=who	}
+	
+	ToServer(data)
+	
+end
+
+
+function RunOnClient(script,pl,who)
+	
+	if !pl:IsValid() then error"Invalid player" end
+	local data={
+		src=script,
+		dst=TO_CLIENT,
+		dst_ply=pl,
+		info=who	}
+	
+	ToServer(data)
+	
+end
+
+
+function RunOnServer(script,who)
+
+	local data={
+		src=script,
+		dst=TO_SERVER,
+		--dst_ply=pl
+		info=who	}
+	
+	ToServer(data)
+	
+end
+
+
+function RunOnShared(script,who)
+
+	local data={
+		src=script,
+		dst=TO_SHARED,
+		--dst_ply=pl
+		info=who	}
+	
+	ToServer(data)
+	
+end
+
+
+
+
+
