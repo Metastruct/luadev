@@ -21,7 +21,7 @@ end)
 
 AddCMD('run_self',function(tbl)
 	local cmd=TableToString(tbl)
-	Run(cmd)
+	Run(cmd,"console")
 end)
 
 
@@ -104,19 +104,9 @@ AddCMD('send_cl',function(tbl)
 	
 	if !content then Print("Could not read the file\n") return end
 	
-	RunOnClient(content,cl)
+	RunOnClient(content,cl,"console")
 	
 end)
-
-
-
-
-	
-
-
-
-
-
 
 
 AddCMD('send_sv',function(c)
@@ -133,9 +123,7 @@ AddCMD('send_sv',function(c)
 	
 	RunOnServer(content,who)
 	
-	
 end)
-
 
 AddCMD('send_clients',function(c)
  
@@ -278,8 +266,3 @@ function RunOnShared(script,who)
 	ToServer(data)
 	
 end
-
-
-
-
-
