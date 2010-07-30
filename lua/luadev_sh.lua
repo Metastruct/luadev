@@ -72,7 +72,7 @@ function AutoComplete(commandName,args)
 end	
 
 
-function AddCMD(str,func)
+function AddCMD(str,func,complete)
 	if SERVER then
 		concommand.Add('lua_'..str,function(pl,_,cmds)
 			if pl:IsValid() then return end
@@ -81,6 +81,6 @@ function AddCMD(str,func)
 	else
 		concommand.Add('lua_'..str,function(_,_,cmds)
 			func(cmds)
-		end,AutoComplete)
+		end,(!complete and AutoComplete) or nil)
 	end
 end

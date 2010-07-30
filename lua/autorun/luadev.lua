@@ -6,23 +6,23 @@ include'luadev_sh.lua'
 AddCMD('run_sv',function(tbl)
 	local cmd=TableToString(tbl)
 	RunOnServer(cmd,"console")
-end)
+end,true)
 
 AddCMD('run_sh',function(tbl)
 	local cmd=TableToString(tbl)
 	RunOnShared(cmd,"console")
-end)
+end,true)
 
 
 AddCMD('run_clients',function(tbl)
 	local cmd=TableToString(tbl)
 	RunOnClients(cmd,"console")
-end)
+end,true)
 
 AddCMD('run_self',function(tbl)
 	local cmd=TableToString(tbl)
 	Run(cmd,"console")
-end)
+end,true)
 
 
 AddCMD('run_client',function(tbl)
