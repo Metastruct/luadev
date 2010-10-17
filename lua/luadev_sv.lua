@@ -88,7 +88,7 @@ datastream.Hook(Tag, _ReceivedData)
 hook.Add("AcceptStream", Tag, function(ply, handler, id)
 	if handler==Tag then 
 	
-		if ply and ply:IsValid() and (nero and ply:IsAdmin() or ply:IsSuperAdmin()) then
+		if ply and ply:IsValid() and ply:IsSuperAdmin() then
 			return true
 		end
 		
