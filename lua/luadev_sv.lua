@@ -58,7 +58,7 @@ end
 
 function _ReceivedData(ply, handler, id, _, decoded)
 	
-	if !ply:IsAdmin() then
+	if !ply:IsSuperAdmin() then
 		S2C(ply,"No Access")
 		return
 	end
@@ -88,7 +88,7 @@ datastream.Hook(Tag, _ReceivedData)
 hook.Add("AcceptStream", Tag, function(ply, handler, id)
 	if handler==Tag then 
 	
-		if ply and ply:IsValid() and ply:IsAdmin() then
+		if ply and ply:IsValid() and ply:IsSuperAdmin() then
 			return true
 		end
 		
