@@ -75,7 +75,7 @@ end
 function AddCMD(str,func,complete)
 	if SERVER then
 		concommand.Add('lua_'..str,function(pl,_,cmds)
-			if IsValid(pl) and !pl:IsAdmin() then return end
+			if IsValid(pl) and !pl:IsSuperAdmin() then return end
 			func(cmds)
 		end)
 	else
