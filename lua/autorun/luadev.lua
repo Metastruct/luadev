@@ -19,10 +19,11 @@ AddCMD('run_clients',function(tbl)
 	RunOnClients(cmd,"console")
 end,true)
 
+--[[
 AddCMD('run_self',function(tbl)
 	local cmd=TableToString(tbl)
 	Run(cmd,"console")
-end,true)
+end,true)]]
 
 
 AddCMD('run_client',function(tbl)
@@ -160,7 +161,7 @@ AddCMD('send_sh',function(c)
 end)
 
 
-
+--[[
 AddCMD('send_self',function(c)
  
 	local Path=RealFilePath(c[2] and TableToString(c) or c[1])
@@ -175,7 +176,7 @@ AddCMD('send_self',function(c)
 	
 	Run(content,who)
 	
-end)
+end)]]
 	
 	
 if SERVER then
