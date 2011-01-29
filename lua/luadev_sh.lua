@@ -21,7 +21,11 @@ end
 function Run(script,info)
 	if !script then debug.Trace() ErrorNoHalt"no script" end
 	if !info then info="LuaDev" end
-	RunStringEx(script,info)
+	
+	if hook.Call("PreLuaDevRun", nil, script, info) ~= false then
+		RunStringEx(script,info)
+		hook.Call("PostLuaDevRun", nil, script, info)
+	end
 	
 end
 
