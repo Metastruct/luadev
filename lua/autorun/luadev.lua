@@ -191,8 +191,9 @@ function _ReceivedData(_,_,_,decoded)
 
 	local script=decoded.src
 	local info=decoded.info
+	local extra=decoded.extra
 	
-	Run(script,tostring(info))
+	Run(script,tostring(info),extra)
 
 end
 datastream.Hook(Tag,_ReceivedData)
@@ -216,53 +217,59 @@ end
 
 
 
-function RunOnClients(script,who)
+function RunOnClients(script,who,extra)
 	
 	local data={
 		src=script,
 		dst=TO_CLIENTS,
-		--dst_ply=
-		info=who	}
+		info=who,
+		extra=extra,
+	}
 	
 	ToServer(data)
 	
 end
 
 
-function RunOnClient(script,pl,who)
+function RunOnClient(script,pl,who,extra)
 	
 	if !pl:IsValid() then error"Invalid player" end
 	local data={
 		src=script,
 		dst=TO_CLIENT,
 		dst_ply=pl,
-		info=who	}
+		info=who,
+		extra=extra,
+	}
 	
 	ToServer(data)
 	
 end
 
 
-function RunOnServer(script,who)
+function RunOnServer(script,who,extra)
 
 	local data={
 		src=script,
 		dst=TO_SERVER,
 		--dst_ply=pl
-		info=who	}
-	
+		info=who,
+		extra=extra,
+	}	
 	ToServer(data)
 	
 end
 
 
-function RunOnShared(script,who)
+function RunOnShared(script,who,extra)
 
 	local data={
 		src=script,
 		dst=TO_SHARED,
 		--dst_ply=pl
-		info=who	}
+		info=who,
+		extra=extra,
+	}
 	
 	ToServer(data)
 	

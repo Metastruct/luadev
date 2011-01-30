@@ -11,10 +11,11 @@ function S2C(cl,msg)
 end
 
 
-function RunOnClients(script,who)
+function RunOnClients(script,who,extra)
 	local data={
 		src=script,
-		info=who
+		info=who,
+		extra=extra,
 	}
 	
 	if verbose:GetBool() then
@@ -24,10 +25,11 @@ function RunOnClients(script,who)
 	datastream.StreamToClients(player.GetAll(),Tag,data)
 end
 
-function RunOnClient(script,pl,who)
+function RunOnClient(script,pl,who,extra)
 	local data={
 		src=script,
-		info=who
+		info=who,
+		extra=extra,
 	}
 	
 	if verbose:GetBool() then
@@ -37,20 +39,20 @@ function RunOnClient(script,pl,who)
 	datastream.StreamToClients(pl,Tag,data)
 end
 
-function RunOnServer(script,who)
+function RunOnServer(script,who,extra)
 
 	if verbose:GetBool() then
 		Print(tostring(who).." running on server")
 	end
 	
-	Run(script,tostring(who))
+	Run(script,tostring(who),extra)
 end
 
 
 
-function RunOnShared(script,who)
-	RunOnClients(script,who)
-	RunOnServer(script,who)
+function RunOnShared(script,who,extra)
+	RunOnClients(script,who,extra)
+	RunOnServer(script,who,extra)
 end
 
 
@@ -66,16 +68,17 @@ function _ReceivedData(ply, handler, id, _, decoded)
 	local script=decoded.src
 	local target=decoded.dst
 	local target_ply=decoded.dst_ply
+	local extra=decoded.extra
 	
 	local info=ply:SteamID()
 	if decoded.info then
 		info=info..'/'..tostring(decoded.info)
 	end
 	
-	if target==TO_SERVER then 		RunOnServer(script,info)
-	elseif target==TO_CLIENT then	RunOnClient(script,target_ply,info)
-	elseif target==TO_CLIENTS then	RunOnClients(script,info)
-	elseif target==TO_SHARED then	RunOnShared(script,info)
+	if target==TO_SERVER then 		RunOnServer(script,info,extra)
+	elseif target==TO_CLIENT then	RunOnClient(script,target_ply,info,extra)
+	elseif target==TO_CLIENTS then	RunOnClients(script,info,extra)
+	elseif target==TO_SHARED then	RunOnShared(script,info,extra)
 	else 
 		S2C(ply,"Unknown cmd")	
 		return
