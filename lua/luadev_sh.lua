@@ -12,11 +12,9 @@ TO_SHARED=4
 
 
 function Print(msg)
-		Msg("[Luadev"..(SERVER and ' Server' or '').."] ")
-		print(msg)
+	Msg("[Luadev"..(SERVER and ' Server' or '').."] ")
+	print(msg)
 end
-
-
 
 function Run(script,info,extra)
 	if !script then debug.Trace() ErrorNoHalt"no script" end
@@ -29,12 +27,9 @@ function Run(script,info,extra)
 	
 end
 
-
 function IsOneLiner(script)
 	return string.find(script,"\n")==nil
 end
-
-
 
 function RealFilePath(name)
 	local RelativePath='../lua/'..name
@@ -55,8 +50,6 @@ function TableToString(tbl)
 	return string.Implode(" ",tbl)
 end
 
-
-
 function AutoComplete(commandName,args)
 
 	local name = string.Explode(' ',args)
@@ -74,7 +67,6 @@ function AutoComplete(commandName,args)
 	return candidates
 	
 end	
-
 
 function AddCMD(str,func,complete)
 	if SERVER then
