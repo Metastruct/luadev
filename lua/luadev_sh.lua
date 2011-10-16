@@ -32,8 +32,8 @@ function IsOneLiner(script)
 end
 
 function RealFilePath(name)
-	local RelativePath='../lua/'..name
-	if !file.Exists(RelativePath) then return nil end
+	local RelativePath='lua/'..name
+	if !file.Exists(RelativePath,true) then return nil end
 	return RelativePath
 end
 
@@ -41,7 +41,7 @@ function GiveFileContent(fullpath)
 	--Print("Reading: "..tostring(fullpath))
 	if fullpath==nil or fullpath=="" then return false end
 	
-	local content=file.Read(fullpath)
+	local content=file.Read(fullpath,true)
 	if content==0 then return false end
 	return content
 end
