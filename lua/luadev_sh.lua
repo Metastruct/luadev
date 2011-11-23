@@ -1,4 +1,7 @@
+require'datastream'
 module("luadev",package.seeall)
+
+
 Tag="LuaDev"
 
 if SERVER then
