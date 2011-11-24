@@ -1,4 +1,5 @@
-require'datastream'
+require'datastream' -- until now
+
 module("luadev",package.seeall)
 
 

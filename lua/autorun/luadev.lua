@@ -2,7 +2,8 @@ module("luadev",package.seeall)
 
 include'luadev_sh.lua'
 
-	
+if not AddCMD then return end
+
 AddCMD('run_sv',function(tbl)
 	local cmd=TableToString(tbl)
 	RunOnServer(cmd,"console")
