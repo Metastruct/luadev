@@ -161,28 +161,11 @@ AddCMD('send_sh',function(c)
 	
 end)
 
-
---[[
-AddCMD('send_self',function(c)
- 
-	local Path=RealFilePath(c[2] and TableToString(c) or c[1])
-	
-	if !Path then Print("Could not find the file\n") return end
-	
-	local content = GiveFileContent(Path)
-	
-	if !content then Print("Could not read the file\n") return end
-	
-	local who=string.GetFileFromFilename(Path)
-	
-	Run(content,who)
-	
-end)]]
 	
 	
 if SERVER then
-	AddCSLuaFile'luadev.lua'
-	include'luadev_sv.lua'
+	AddCSLuaFile 'luadev.lua'
+	include 'luadev_sv.lua'
 	return
 end
 
@@ -204,11 +187,11 @@ datastream.Hook(Tag,_ReceivedData)
 
 ---- Base info callbacks
 function UploadFinished()
-	Print("Finished uploading")
+	Print("Uploaded!")
 end
 
 function UploadInfo(accepted, tempid, id)
-	if accepted then Print"Uploading the script" else Print"Error: Upload refused!"	end
+	if accepted then Print"Uploading" else Print"Error: Upload refused!"	end
 end
 
 

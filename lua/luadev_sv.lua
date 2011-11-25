@@ -2,6 +2,9 @@ module("luadev",package.seeall)
 
 local verbose =	CreateConVar( "luadev_verbose", "1", { FCVAR_NOTIFY } )
 
+-- inform the client of the version
+local version = CreateConVar( "_luadev_version", "1.3", FCVAR_NOTIFY )
+
 function S2C(cl,msg)
 	if cl and cl:IsValid() and cl:IsPlayer() then
 		cl:PrintMessage(HUD_PRINTCONSOLE,"LuaDev:\tNo access")

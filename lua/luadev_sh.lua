@@ -1,4 +1,16 @@
-require'datastream' -- until now
+
+if VERSION>=130 then -- Beta tweak
+
+	require'datastream'
+	
+	if SERVER then
+		AddCSLuaFile("includes/modules/datastream.lua") -- in case missing
+	end
+	if not datastream then
+		print("Datastream required for LuaDev to work (for now). You can find it from the old gmod installation!")
+	end
+	
+end
 
 module("luadev",package.seeall)
 
@@ -6,9 +18,10 @@ module("luadev",package.seeall)
 Tag="LuaDev"
 
 if SERVER then
-	AddCSLuaFile'luadev_sh.lua'
+	AddCSLuaFile 'luadev_sh.lua'
 end
 
+-- Enums
 TO_CLIENTS=1
 TO_CLIENT=2
 TO_SERVER=3
