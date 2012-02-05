@@ -2,14 +2,14 @@
 if VERSION>=130 then -- Beta tweak
 
 	require'datastream'
-	
+
 	if SERVER then
 		AddCSLuaFile("includes/modules/datastream.lua") -- in case missing
 	end
 	if not datastream then
 		print("Datastream required for LuaDev to work (for now). You can find it from the old gmod installation!")
 	end
-	
+
 end
 
 module("luadev",package.seeall)
@@ -36,12 +36,12 @@ end
 function Run(script,info,extra)
 	if !script then debug.Trace() ErrorNoHalt"no script" end
 	if !info then info="LuaDev" end
-	
+
 	if hook.Call("PreLuaDevRun", nil, script, info, extra) ~= false then
 		RunStringEx(script,info)
 		hook.Call("PostLuaDevRun", nil, script, info, extra)
 	end
-	
+
 end
 
 function IsOneLiner(script)
@@ -57,7 +57,7 @@ end
 function GiveFileContent(fullpath)
 	--Print("Reading: "..tostring(fullpath))
 	if fullpath==nil or fullpath=="" then return false end
-	
+
 	local content=file.Read(fullpath,true)
 	if content==0 then return false end
 	return content
@@ -70,19 +70,19 @@ end
 function AutoComplete(commandName,args)
 
 	local name = string.Explode(' ',args)
-	
+
 	name=name[#name] or ""
 
 	local path = string.GetPathFromFilename(name)
 
 	local candidates=file.FindInLua((name or "").."*")
-	
+
 	for i,_ in pairs(candidates) do
 		candidates[i]=commandName.." "..path..candidates[i]
 	end
 
 	return candidates
-	
+
 end	
 
 function AddCMD(str,func,complete)
