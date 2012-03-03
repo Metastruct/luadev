@@ -96,7 +96,7 @@ AddCMD('send_cl',function(tbl)
 	local path=TableToString(tbl)
 
 
- 
+
 
 	local Path=RealFilePath(path)
 
@@ -112,7 +112,7 @@ end)
 
 
 AddCMD('send_sv',function(c)
- 
+
 	local Path=RealFilePath(c[2] and TableToString(c) or c[1])
 
 	if !Path then Print("Could not find the file\n") return end
@@ -128,7 +128,7 @@ AddCMD('send_sv',function(c)
 end)
 
 AddCMD('send_clients',function(c)
- 
+
 	local Path=RealFilePath(c[2] and TableToString(c) or c[1])
 
 	if !Path then Print("Could not find the file\n") return end
@@ -145,7 +145,7 @@ end)
 
 
 AddCMD('send_sh',function(c)
- 
+
 	local Path=RealFilePath(c[2] and TableToString(c) or c[1])
 
 	if !Path then Print("Could not find the file\n") return end
