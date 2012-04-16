@@ -1,5 +1,9 @@
 module("luadev",package.seeall)
 
+if SERVER then
+	AddCSLuaFile'luadev_sh.lua'
+end
+
 include'luadev_sh.lua'
 
 if not AddCMD then return end
