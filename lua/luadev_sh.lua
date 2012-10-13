@@ -50,7 +50,7 @@ end
 
 function RealFilePath(name)
 	local RelativePath='lua/'..name
-	if !file.Exists(RelativePath,true) then return nil end
+	if !file.Exists(RelativePath,VERSION<150 and true or "GAME") then return nil end
 	return RelativePath
 end
 
@@ -58,7 +58,7 @@ function GiveFileContent(fullpath)
 	--Print("Reading: "..tostring(fullpath))
 	if fullpath==nil or fullpath=="" then return false end
 
-	local content=file.Read(fullpath,true)
+	local content=file.Read(fullpath,VERSION<150 and true or "GAME")
 	if content==0 then return false end
 	return content
 end
@@ -75,8 +75,13 @@ function AutoComplete(commandName,args)
 
 	local path = string.GetPathFromFilename(name)
 
-	local candidates=file.FindInLua((name or "").."*")
-
+	local candidates
+	if VERSION<150 then
+		candidates=file.FindInLua((name or "").."*")
+	else
+		candidates=file.Find("lua/"..(name or "").."*","GAME")
+	end
+	
 	for i,_ in pairs(candidates) do
 		candidates[i]=commandName.." "..path..candidates[i]
 	end
