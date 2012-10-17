@@ -80,12 +80,14 @@ function AutoComplete(commandName,args)
 		candidates=file.FindInLua((name or "").."*")
 	else
 		local files,folders=file.Find("lua/"..(name or "").."*","GAME")
+		files=files or {}
+		folders=folders or {}
 		for k,v in pairs(folders) do
 			table.insert(files,v)
 		end
 		candidates=files
 	end
-	
+	candidates=candidates or {}
 	for i,_ in pairs(candidates) do
 		candidates[i]=commandName.." "..path..candidates[i]
 	end
