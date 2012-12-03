@@ -1,15 +1,10 @@
+require'datastream'
 
-if VERSION>=130 then -- Beta tweak
-
-	require'datastream'
-
-	if SERVER then
-		AddCSLuaFile("includes/modules/datastream.lua") -- in case missing
-	end
-	if not datastream then
-		print("Datastream required for LuaDev to work (for now). You can find it from the old gmod installation!")
-	end
-
+if SERVER then
+	AddCSLuaFile("includes/modules/datastream.lua") -- in case missing
+end
+if not datastream then
+	print("Datastream required for LuaDev to work (for now). You can find it from the old gmod installation!")
 end
 
 module("luadev",package.seeall)
@@ -50,7 +45,7 @@ end
 
 function RealFilePath(name)
 	local RelativePath='lua/'..name
-	if !file.Exists(RelativePath,VERSION<150 and true or "GAME") then return nil end
+	if !file.Exists(RelativePath,"GAME") then return nil end
 	return RelativePath
 end
 
@@ -58,7 +53,7 @@ function GiveFileContent(fullpath)
 	--Print("Reading: "..tostring(fullpath))
 	if fullpath==nil or fullpath=="" then return false end
 
-	local content=file.Read(fullpath,VERSION<150 and true or "GAME")
+	local content=file.Read(fullpath,"GAME")
 	if content==0 then return false end
 	return content
 end
@@ -75,18 +70,13 @@ function AutoComplete(commandName,args)
 
 	local path = string.GetPathFromFilename(name)
 
-	local candidates
-	if VERSION<150 then
-		candidates=file.FindInLua((name or "").."*")
-	else
-		local files,folders=file.Find("lua/"..(name or "").."*","GAME")
-		files=files or {}
-		folders=folders or {}
-		for k,v in pairs(folders) do
-			table.insert(files,v)
-		end
-		candidates=files
+	local files,folders=file.Find("lua/"..(name or "").."*","GAME")
+	files=files or {}
+	folders=folders or {}
+	for k,v in pairs(folders) do
+		table.insert(files,v)
 	end
+	local candidates=files
 	candidates=candidates or {}
 	for i,_ in pairs(candidates) do
 		candidates[i]=commandName.." "..path..candidates[i]
