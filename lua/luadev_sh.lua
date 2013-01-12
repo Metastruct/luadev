@@ -1,16 +1,7 @@
-require'datastream'
-
-if SERVER then
-	AddCSLuaFile("includes/modules/datastream.lua") -- in case missing
-end
-if not datastream then
-	print("Datastream required for LuaDev to work (for now). You can find it from the old gmod installation!")
-end
-
 module("luadev",package.seeall)
 
 
-Tag="LuaDev"
+Tag="LuaDevTag"
 
 if SERVER then
 	AddCSLuaFile 'luadev_sh.lua'
@@ -88,13 +79,13 @@ end
 
 function AddCMD(str,func,complete)
 	if SERVER then
-		concommand.Add('lua_'..str,function(pl,_,cmds)
+		concommand.Add('lua_'..str,function(pl,_,cmds,str)
 			if IsValid(pl) and !pl:IsSuperAdmin() then return end
-			func(cmds)
+			func(cmds,str)
 		end)
 	else
-		concommand.Add('lua_'..str,function(_,_,cmds)
-			func(cmds)
+		concommand.Add('lua_'..str,function(_,_,cmds,str)
+			func(cmds,str)
 		end,(!complete and AutoComplete) or nil)
 	end
 end

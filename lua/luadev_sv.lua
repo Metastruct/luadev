@@ -1,16 +1,16 @@
 module("luadev",package.seeall)
 
+util.AddNetworkString(Tag)
+
 local verbose =	CreateConVar( "luadev_verbose", "1", { FCVAR_NOTIFY } )
 
 -- inform the client of the version
-local version = CreateConVar( "_luadev_version", "1.3", FCVAR_NOTIFY )
+local version = CreateConVar( "_luadev_version", "1.4", FCVAR_NOTIFY )
 
 function S2C(cl,msg)
 	if cl and cl:IsValid() and cl:IsPlayer() then
 		cl:PrintMessage(HUD_PRINTCONSOLE,"LuaDev:\tNo access")
 	end
-
-
 end
 
 
@@ -25,7 +25,9 @@ function RunOnClients(script,who,extra)
 		Print(tostring(who).." running on clients")
 	end
 
-	datastream.StreamToClients(player.GetAll(),Tag,data)
+	net.Start(Tag)
+		net.WriteTable(data)
+	net.Broadcast()
 end
 
 function RunOnClient(script,pl,who,extra)
@@ -39,7 +41,9 @@ function RunOnClient(script,pl,who,extra)
 		Print(tostring(who).." running on "..tostring(pl))
 	end
 
-	datastream.StreamToClients(pl,Tag,data)
+	net.Start(Tag)
+		net.WriteTable(data)
+	net.Send(pl)
 end
 
 function RunOnServer(script,who,extra)
@@ -61,13 +65,13 @@ end
 
 
 
-function _ReceivedData(ply, handler, id, _, decoded)
+function _ReceivedData(len, ply)
 
-	if !(nero and ply:IsAdmin() or ply:IsSuperAdmin()) then
+	if not ply:IsAdmin() and not ply:IsSuperAdmin() then
 		S2C(ply,"No Access")
 		return
 	end
-
+	local decoded=net.ReadTable()
 	local script=decoded.src
 	local target=decoded.dst
 	local target_ply=decoded.dst_ply
@@ -89,17 +93,4 @@ function _ReceivedData(ply, handler, id, _, decoded)
 
 
 end
-datastream.Hook(Tag, _ReceivedData)
-
-hook.Add("AcceptStream", Tag, function(ply, handler, id)
-	if handler==Tag then 
-
-		if ply and ply:IsValid() and (nero and ply:IsAdmin() or ply:IsSuperAdmin()) then
-			return true
-		end
-
-		S2C(ply,"No Access")
-
-	end
-end)
-
+net.Receive(Tag, _ReceivedData)

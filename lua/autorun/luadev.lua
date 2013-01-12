@@ -8,20 +8,20 @@ include'luadev_sh.lua'
 
 if not AddCMD then return end
 
-AddCMD('run_sv',function(tbl)
-	local cmd=TableToString(tbl)
-	RunOnServer(cmd,"console")
+AddCMD('run_sv',function(tbl,cmd)
+	--local cmd=TableToString(tbl)
+	RunOnServer(cmd,"ConCmd")
 end,true)
 
-AddCMD('run_sh',function(tbl)
-	local cmd=TableToString(tbl)
-	RunOnShared(cmd,"console")
+AddCMD('run_sh',function(tbl,cmd)
+	--local cmd=TableToString(tbl)
+	RunOnShared(cmd,"ConCmd")
 end,true)
 
 
-AddCMD('run_clients',function(tbl)
-	local cmd=TableToString(tbl)
-	RunOnClients(cmd,"console")
+AddCMD('run_clients',function(tbl,cmd)
+	--local cmd=TableToString(tbl)
+	RunOnClients(cmd,"ConCmd")
 end,true)
 
 --[[
@@ -175,8 +175,10 @@ end
 
 
 
-function _ReceivedData(_,_,_,decoded)
-
+function _ReceivedData(len)
+	
+	local decoded = net.ReadTable()
+	
 	local script=decoded.src
 	local info=decoded.info
 	local extra=decoded.extra
@@ -184,23 +186,13 @@ function _ReceivedData(_,_,_,decoded)
 	Run(script,tostring(info),extra)
 
 end
-datastream.Hook(Tag,_ReceivedData)
-
-
-
-
----- Base info callbacks
-function UploadFinished()
-	Print("Uploaded!")
-end
-
-function UploadInfo(accepted, tempid, id)
-	if accepted then Print"Uploading" else Print"Error: Upload refused!"	end
-end
+net.Receive(Tag,_ReceivedData)
 
 
 function ToServer(data)
-	datastream.StreamToServer(Tag, data, UploadFinished, UploadInfo)
+	net.Start(Tag)
+	net.WriteTable(data)
+	net.SendToServer()
 end
 
 
