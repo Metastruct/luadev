@@ -8,13 +8,15 @@ end
 
 -- Enums
 
-	enums={
-		TO_CLIENTS,
-		TO_CLIENT,
-		TO_SERVER,
-		TO_SHARED,
+	local enums={
+		TO_CLIENTS=1,
+		TO_CLIENT=2,
+		TO_SERVER=3,
+		TO_SHARED=4,
 	}
-	revenums={} -- lookup
+
+	local revenums={} -- lookup
+	_M.revenums=revenums
 
 	for k,v in pairs(enums) do
 		_M[k]=v
