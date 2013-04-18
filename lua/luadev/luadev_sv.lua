@@ -56,7 +56,10 @@ function RunOnClient(script,targets,who,extra)
 			who = nil
 		end
 		
-		if extra and isentity(extra) and who==nil then extra={ply=extra} end
+		if extra and isentity(extra) and who==nil then 
+			extra={ply=extra} 
+			who="COMPAT"
+		end
 		
 	local data={
 		--src=script,
@@ -70,11 +73,14 @@ function RunOnClient(script,targets,who,extra)
 	
 	ClearTargets(targets)
 		
+	if table.Count(targets)==0 then error"Invalid player(s)" end
+	
 	local targetslist
 	for _,target in pairs(targets) do
 		local pre = targetslist and ", " or ""
 		targetslist=(targetslist or "")..pre..tostring(target)
 	end
+	
 	
 	if Verbose() then
 		Print(tostring(who).." running on "..tostring(targetslist or "NONE"))
@@ -84,6 +90,8 @@ function RunOnClient(script,targets,who,extra)
 		WriteCompressed(script)
 		net.WriteTable(data)
 	net.Send(targets)
+	
+	return #targets
 end
 
 function RunOnServer(script,who,extra)

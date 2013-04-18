@@ -183,7 +183,9 @@ function RunOnClient(script,targets,who,extra)
 		
 		if extra and isentity(extra) and who==nil then extra={ply=extra} end
 		
-	if not istable(targets) and !IsValid(targets) then error"Invalid player" end
+	if (not istable(targets) and !IsValid(targets)) 
+	or (istable(targets) and table.Count(targets)==0) 
+	then error"Invalid player(s)" end
 	
 	local data={
 		src=script,
