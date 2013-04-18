@@ -112,13 +112,21 @@ end
 	end
 
 	function WriteCompressed(data)
+		if #data==0 then 
+			net.WriteUInt( 0, 24 )	
+		end
+		
 		local compressed = Compress( data )
-		net.WriteUInt( compressed:len(), 24 )		
-		net.WriteData( compressed, compressed:len() )
+		local len = compressed:len()
+		net.WriteUInt( len, 24 )		
+		net.WriteData( compressed, len )
 	end
 
 	function ReadCompressed()
-		return Decompress( net.ReadData( net.ReadUInt( 24 ) ) )
+		local len = net.ReadUInt( 24 )
+		if len==0 then return "" end
+		
+		return Decompress( net.ReadData( len ) )
 	end
 
 -- Compiler / runner
@@ -132,6 +140,11 @@ local LUADEV_EXECUTE_STRING=RunStringEx
 local LUADEV_EXECUTE_FUNCTION=xpcall
 local LUADEV_COMPILE_STRING=CompileString
 function Run(script,info,extra)
+	--compat
+	if CLIENT and not extra and info and istable(info) then
+		return luadev.RunOnSelf(script,"COMPAT",{ply=info.ply})
+	end
+	
 	info = info or "??ANONYMOUS??"
 	if not isstring(info) then
 		debug.Trace()
