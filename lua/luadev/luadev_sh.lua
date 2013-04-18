@@ -326,7 +326,7 @@ function CanLuaDev(ply,script,command,target,target_ply,extra)
 		or (target_ply
 			and istable(target_ply) 
 			and target_ply[1]==ply 
-			and table.Count(target_ply)==1)
+			and table.Count(target_ply)==1))
 	then
 		if sv_allowcslua:GetBool() then return true end
 	end
