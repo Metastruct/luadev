@@ -174,7 +174,7 @@ function RunOnSelf(script,who,extra)
 	RunOnClient(script,LocalPlayer(),who,extra)
 end
 
-function RunOnClient(script,pl,who,extra)
+function RunOnClient(script,targets,who,extra)
 	-- compat
 		if not targets and isentity(who) then
 			targets=who
@@ -183,12 +183,12 @@ function RunOnClient(script,pl,who,extra)
 		
 		if extra and isentity(extra) and who==nil then extra={ply=extra} end
 		
+	if not istable(targets) and !IsValid(targets) then error"Invalid player" end
 	
-	if not istable(pl) and !IsValid(pl) then error"Invalid player" end
 	local data={
 		src=script,
 		dst=TO_CLIENT,
-		dst_ply=pl,
+		dst_ply=targets,
 		info=who,
 		extra=extra,
 	}
