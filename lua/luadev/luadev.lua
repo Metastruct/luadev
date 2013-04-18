@@ -103,7 +103,7 @@ COMMAND('send_sh',function(ply,c,cmd,who)
 
 end)
 
-if SERVER then return end
+if not CLIENT then return end
 
 function _ReceivedData(len)
 	
@@ -116,7 +116,6 @@ function _ReceivedData(len)
 	Run(script,tostring(info),extra)
 
 end
-
 net.Receive(Tag,function(...) _ReceivedData(...) end)
 
 function ToServer(data)
@@ -138,7 +137,9 @@ end
 
 
 function RunOnClients(script,who,extra)
-
+	
+	if not who and extra and isentity(extra) then extra = {ply=extra} end
+	
 	local data={
 		src=script,
 		dst=TO_CLIENTS,
@@ -152,16 +153,21 @@ end
 
 
 function RunOnSelf(script,who,extra)
+	if not isstring(who) then who = nil end
+	if not who and extra and isentity(extra) then extra = {ply=extra} end
+	
 	RunOnClient(script,LocalPlayer(),who,extra)
 end
 
 function RunOnClient(script,pl,who,extra)
-	
-	-- gcompute compat...
-	if pl==nil and isentity(who) and who:IsPlayer() then
-		pl=who
-		who=nil
-	end
+	-- compat
+		if not targets and isentity(who) then
+			targets=who
+			who = nil
+		end
+		
+		if extra and isentity(extra) and who==nil then extra={ply=extra} end
+		
 	
 	if not istable(pl) and !IsValid(pl) then error"Invalid player" end
 	local data={
@@ -177,7 +183,8 @@ function RunOnClient(script,pl,who,extra)
 end
 
 function RunOnServer(script,who,extra)
-
+	if not who and extra and isentity(extra) then extra = {ply=extra} end
+	
 	local data={
 		src=script,
 		dst=TO_SERVER,
@@ -190,7 +197,8 @@ function RunOnServer(script,who,extra)
 end
 
 function RunOnShared(script,who,extra)
-
+	if not who and extra and isentity(extra) then extra = {ply=extra} end
+	
 	local data={
 		src=script,
 		dst=TO_SHARED,

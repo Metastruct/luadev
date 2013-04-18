@@ -17,6 +17,8 @@ function S2C(cl,msg)
 end
 
 function RunOnClients(script,who,extra)
+	if not who and extra and isentity(extra) then extra = {ply=extra} end
+	
 	local data={
 		--src=script,
 		info=who,
@@ -48,6 +50,14 @@ end
 
 
 function RunOnClient(script,targets,who,extra)
+	-- compat
+		if not targets and isentity(who) then
+			targets=who
+			who = nil
+		end
+		
+		if extra and isentity(extra) and who==nil then extra={ply=extra} end
+		
 	local data={
 		--src=script,
 		info=who,
@@ -77,7 +87,8 @@ function RunOnClient(script,targets,who,extra)
 end
 
 function RunOnServer(script,who,extra)
-
+	if not who and extra and isentity(extra) then extra = {ply=extra} end
+	
 	if Verbose() then
 		Print(tostring(who).." running on server")
 	end
@@ -85,15 +96,17 @@ function RunOnServer(script,who,extra)
 	return Run(script,tostring(who),extra)
 end
 
---function RunOnSelf(script,who,extra)
---	RunOnServer(script,who,extra)
---end
+function RunOnSelf(script,who,extra)
+	if not isstring(who) then who = nil end
+	if not who and extra and isentity(extra) then extra = {ply=extra} end
+	
+	return RunOnServer(script,who,extra)
+end
 
-RunOnServer = RunOnSelf
 
 function RunOnShared(...)
 	RunOnClients(...)
-	RunOnServer(...)
+	return RunOnServer(...)
 end
 
 

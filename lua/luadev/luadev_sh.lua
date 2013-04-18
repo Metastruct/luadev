@@ -131,7 +131,11 @@ local LUADEV_EXECUTE_FUNCTION=xpcall
 local LUADEV_COMPILE_STRING=CompileString
 function Run(script,info,extra)
 	info = info or "??ANONYMOUS??"
-
+	if not isstring(info) then
+		debug.Trace()
+		ErrorNoHalt("LuaDev Warning: info type mismatch: "..type(info)..': '..tostring(info))
+	end
+	
 	local ret,newinfo = ProcessHook(STAGE_PREPROCESS,script,info,extra,nil)
 	
 		-- replace script
@@ -141,7 +145,11 @@ function Run(script,info,extra)
 	-- replace info
 	if newinfo then info = newinfo end
 	
-	local func = LUADEV_COMPILE_STRING(script,info)
+	if not script then 
+		return false,"no script"
+	end
+	
+	local func = LUADEV_COMPILE_STRING(script,tostring(info))
 	if not func then compileerr = true end
 	
 	local ret = ProcessHook(STAGE_COMPILED,script,info,extra,func)
@@ -302,8 +310,6 @@ end
 function RejectCommand(pl,x)
 	S2C(pl,"No Access"..(x and (": "..tostring(x)) or ""))
 end
-
-
 
 function COMMAND(str,func,complete)
 	if SERVER then
