@@ -103,7 +103,22 @@ COMMAND('send_sh',function(ply,c,cmd,who)
 
 end)
 
-if not CLIENT then return end
+
+COMMAND('send_self',function(ply,c,cmd,who)
+
+	local Path,searchpath=RealFilePath(c[2] and TableToString(c) or c[1])
+	if !Path then Print("Could not find the file\n") return end
+
+	local content = GiveFileContent(Path,searchpath)
+	if !content then Print("Could not read the file\n") return end
+
+	local who=string.GetFileFromFilename(Path)
+
+	RunOnSelf(content,who or CMD(who),MakeExtras(ply))
+
+end)
+
+if SERVER then return end
 
 function _ReceivedData(len)
 	
