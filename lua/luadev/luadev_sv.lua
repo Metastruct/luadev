@@ -46,6 +46,7 @@ local function ClearTargets(targets)
 	end
 end
 
+
 function RunOnClient(script,targets,who,extra)
 	local data={
 		--src=script,
@@ -81,10 +82,14 @@ function RunOnServer(script,who,extra)
 		Print(tostring(who).." running on server")
 	end
 
-	Run(script,tostring(who),extra)
+	return Run(script,tostring(who),extra)
 end
 
+--function RunOnSelf(script,who,extra)
+--	RunOnServer(script,who,extra)
+--end
 
+RunOnServer = RunOnSelf
 
 function RunOnShared(...)
 	RunOnClients(...)

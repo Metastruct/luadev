@@ -163,7 +163,7 @@ function Run(script,info,extra)
 	lastscript = script
 	lastfunc = func
 	
-	local args = extra and extra.args and istable(extra.args) and extra.args
+	local args = extra and extra.args and (istable(extra.args) and extra.args or {extra.args})
 	if not args then args=nil end
 
 	-- ugly global passing but we can't do it otherwise
@@ -213,7 +213,7 @@ function Run(script,info,extra)
 	end
 
 	local LUADEV_EXECUTE_FUNCTION=xpcall
-	local returnvals = {LUADEV_EXECUTE_FUNCTION(func,LUADEV_TRACEBACK,unpack(args))}
+	local returnvals = {LUADEV_EXECUTE_FUNCTION(func,LUADEV_TRACEBACK,args and unpack(args) or nil)}
 	local ok = returnvals[1] table.remove(returnvals,1)
 	
 	ProcessHook(STAGE_POST,script,info,extra,func,args,ok,returnvals)

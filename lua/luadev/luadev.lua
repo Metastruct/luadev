@@ -17,11 +17,7 @@ COMMAND('run_clients',function(ply,_,script,who)
 end,true)
 
 COMMAND('run_self',function(ply,_,script,who)
-	if CLIENT then
-		RunOnClient(script,LocalPlayer(),CMD(who),MakeExtras(ply))
-	else
-		RunOnServer(script,CMD(who),MakeExtras(ply))
-	end
+	RunOnSelf(script,CMD(who),MakeExtras(ply))
 end,true)
 
 COMMAND('run_client',function(ply,tbl,cmd,who)
@@ -109,7 +105,6 @@ end)
 
 if SERVER then return end
 
-
 function _ReceivedData(len)
 	
 	local script = ReadCompressed()
@@ -141,6 +136,7 @@ function ToServer(data)
 	net.SendToServer()
 end
 
+
 function RunOnClients(script,who,extra)
 
 	local data={
@@ -152,6 +148,11 @@ function RunOnClients(script,who,extra)
 
 	ToServer(data)
 
+end
+
+
+function RunOnSelf(script,who,extra)
+	RunOnClient(script,LocalPlayer(),who,extra)
 end
 
 function RunOnClient(script,pl,who,extra)
