@@ -98,7 +98,7 @@ end
 		if !cl and easylua and easylua.FindEntity then
 			cl = easylua.FindEntity(plyid)
 		end
-		return cl
+		return IsValid(cl) and cl or nil
 	end
 
 -- compression 
