@@ -34,7 +34,7 @@ end
 		end
 	end
 
--- Helpers 
+-- Helpers
 
 	function TransmitHook(stage,...)
 		return hook.Run("LuaDevTransmit",stage,...)
@@ -101,7 +101,7 @@ end
 		return IsValid(cl) and cl or nil
 	end
 
--- compression 
+-- compression
 
 	function Compress( data )
 		return util.Compress( data )
@@ -112,13 +112,13 @@ end
 	end
 
 	function WriteCompressed(data)
-		if #data==0 then 
-			net.WriteUInt( 0, 24 )	
+		if #data==0 then
+			net.WriteUInt( 0, 24 )
 		end
 		
 		local compressed = Compress( data )
 		local len = compressed:len()
-		net.WriteUInt( len, 24 )		
+		net.WriteUInt( len, 24 )
 		net.WriteData( compressed, len )
 	end
 
@@ -160,7 +160,7 @@ function Run(script,info,extra)
 	-- replace info
 	if newinfo then info = newinfo end
 	
-	if not script then 
+	if not script then
 		return false,"no script"
 	end
 	
@@ -170,15 +170,15 @@ function Run(script,info,extra)
 	local ret = ProcessHook(STAGE_COMPILED,script,info,extra,func)
 		-- replace function
 		if ret == false then return end
-		if ret ~=nil and isfunction(ret) then 
-			func = ret 
+		if ret ~=nil and isfunction(ret) then
+			func = ret
 			compileerr = false
 		end
 
-	if not func then 
+	if not func then
 		if compileerr then
 			return false,"Syntax error"
-		end 
+		end
 	end
 	
 	lastextra = extra
@@ -197,11 +197,11 @@ function Run(script,info,extra)
 	if args then
 		args=istable(args) and args or {args}
 		_G.LUADEV_ARGS = args
-		local LUADEV_EXECUTOR = LUADEV_EXECUTE_STRING([[_G.LUADEV_RETURNS={_G.LUADEV_COMPILED_FUNCTION(unpack(_G.LUADEV_ARGS or {}))} 
+		local LUADEV_EXECUTOR = LUADEV_EXECUTE_STRING([[_G.LUADEV_RETURNS={_G.LUADEV_COMPILED_FUNCTION(unpack(_G.LUADEV_ARGS or {}))}
 														_G.LUADEV_EXECUTED_OK = true]],"LUADEV_EXECUTOR")
 		_G.LUADEV_ARGS = nil
 	else
-		local LUADEV_EXECUTOR = LUADEV_EXECUTE_STRING([[_G.LUADEV_RETURNS={_G.LUADEV_COMPILED_FUNCTION()} 
+		local LUADEV_EXECUTOR = LUADEV_EXECUTE_STRING([[_G.LUADEV_RETURNS={_G.LUADEV_COMPILED_FUNCTION()}
 														_G.LUADEV_EXECUTED_OK = true]],"LUADEV_EXECUTOR")
 	end
 	local ret = ProcessHook(STAGE_POST,script,info,extra,func,args,_G.LUADEV_EXECUTED_OK,_G.LUADEV_RETURNS)
@@ -321,11 +321,11 @@ function CanLuaDev(ply,script,command,target,target_ply,extra)
 	local ret,x = hook.Run("LuaDevIsPlayerAllowed", ply, script or "")
 	if ret~=nil then return ret,x end
 	if ply:IsSuperAdmin() then return true end
-	if target == TO_CLIENT and 
-		(target_ply == ply 
+	if target == TO_CLIENT and
+		(target_ply == ply
 		or (target_ply
-			and istable(target_ply) 
-			and target_ply[1]==ply 
+			and istable(target_ply)
+			and target_ply[1]==ply
 			and table.Count(target_ply)==1))
 	then
 		if sv_allowcslua:GetBool() then return true end

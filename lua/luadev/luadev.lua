@@ -183,8 +183,8 @@ function RunOnClient(script,targets,who,extra)
 		
 		if extra and isentity(extra) and who==nil then extra={ply=extra} end
 		
-	if (not istable(targets) and !IsValid(targets)) 
-	or (istable(targets) and table.Count(targets)==0) 
+	if (not istable(targets) and !IsValid(targets))
+	or (istable(targets) and table.Count(targets)==0)
 	then error"Invalid player(s)" end
 	
 	local data={
@@ -208,7 +208,7 @@ function RunOnServer(script,who,extra)
 		--dst_ply=pl
 		info=who,
 		extra=extra,
-	}	
+	}
 	ToServer(data)
 
 end

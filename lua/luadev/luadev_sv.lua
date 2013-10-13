@@ -1,6 +1,6 @@
 module("luadev",package.seeall)
 
-if CLIENT then return end 
+if CLIENT then return end
 
 luadev_verbose = CreateConVar( "luadev_verbose", "9", { FCVAR_NOTIFY } )
 function Verbose(lev)
@@ -56,8 +56,8 @@ function RunOnClient(script,targets,who,extra)
 			who = nil
 		end
 		
-		if extra and isentity(extra) and who==nil then 
-			extra={ply=extra} 
+		if extra and isentity(extra) and who==nil then
+			extra={ply=extra}
 			who="COMPAT"
 		end
 		
@@ -68,7 +68,7 @@ function RunOnClient(script,targets,who,extra)
 	}
 
 	if not istable(targets) then
-		targets = {targets}		
+		targets = {targets}
 	end
 	
 	ClearTargets(targets)
@@ -166,7 +166,7 @@ function _ReceivedData(len, ply)
 	elseif  target==TO_CLIENT  then	RunOnClient (script,target_ply,	identifier,extra)
 	elseif  target==TO_CLIENTS then	RunOnClients(script,			identifier,extra)
 	elseif  target==TO_SHARED  then	RunOnShared (script,			identifier,extra)
-	else  	S2C(ply,"Unknown target")	
+	else  	S2C(ply,"Unknown target")
 	end
 
 end
