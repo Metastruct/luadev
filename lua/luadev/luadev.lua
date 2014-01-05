@@ -104,6 +104,181 @@ COMMAND('send_sh',function(ply,c,cmd,who)
 end)
 
 
+local PAYLOAD_SV=([===================[
+local __SWP__=[[SWEPNAME]]
+local SWEP,_REG_=weapons.GetStored(__SWP__),nil
+if not SWEP then
+	SWEP = {Primary={}, Secondary={},Base = "weapon_base",ClassName = __SWP__}
+	_REG_ = true
+end
+
+CONTENT
+
+if _REG_ and SWEP then
+	weapons.Register(SWEP, __SWP__, true)
+end
+]===================]):gsub("\n"," ")
+local PAYLOAD_CL=([===================[
+local __SWP__=[[SWEPNAME]]
+local SWEP,_REG_=weapons.GetStored(__SWP__),nil
+if not SWEP then
+	SWEP = {Primary={}, Secondary={},Base = "weapon_base",ClassName = __SWP__}
+	_REG_ = true
+end
+
+CONTENT
+
+if _REG_ and SWEP then
+	weapons.Register(SWEP, __SWP__, true)
+end
+]===================]):gsub("\n"," ")
+local PAYLOAD_SH=([===================[
+local __SWP__=[[SWEPNAME]]
+local SWEP,_REG_=weapons.GetStored(__SWP__),nil
+if not SWEP then
+	SWEP = {Primary={}, Secondary={},Base = "weapon_base",ClassName = __SWP__}
+	_REG_ = true
+end
+
+CONTENT
+
+if _REG_ and SWEP then
+	local table_ForEach=table.ForEach table.ForEach=function()end timer.Simple(0,function() table.ForEach=table_ForEach end)
+		weapons.Register(SWEP, __SWP__, true)
+	table.ForEach=table_ForEach
+end
+]===================]):gsub("\n"," ")
+
+local function SendSWEP(cl,sh,sv,Path,ply,c,cmd,who)
+	local who=string.GetFileFromFilename(Path)
+	
+	local swepname=string.GetFileFromFilename(Path):gsub("%.lua","")
+	print("SendSWEP",swepname,cl and #cl,sh and #sh,sv and #sv)
+
+	if cl then
+		cl = PAYLOAD_CL:gsub("CONTENT",cl):gsub("SWEPNAME",swepname)
+		RunOnClients(cl,who or CMD(who),MakeExtras(ply))
+	end
+	if sh then
+		sh = PAYLOAD_SH:gsub("CONTENT",sh):gsub("SWEPNAME",swepname)
+		RunOnShared(sh,who or CMD(who),MakeExtras(ply))
+	end
+	if sv then
+		sv = PAYLOAD_SV:gsub("CONTENT",sv):gsub("SWEPNAME",swepname)
+		RunOnServer(sv,who or CMD(who),MakeExtras(ply))
+	end
+	
+end
+
+COMMAND('send_wep',function(ply,c,cmd,who)
+	local path = c[2] and TableToString(c) or c[1]
+	
+	local Path,searchpath=RealFilePath(path)
+	if not Path then 
+		Print("Could not find the file\n") 
+		return
+	end
+	
+	local content = GiveFileContent(Path,searchpath)
+	if content then
+		local sh = content
+		SendSWEP(nil,sh,nil,Path,ply,c,cmd,who)
+		return
+	end
+	
+	local cl = GiveFileContent(Path..'/cl_init.lua',searchpath)
+	local sh = GiveFileContent(Path..'/shared.lua',searchpath)
+	local sv = GiveFileContent(Path..'/init.lua',searchpath)
+	
+	if sv or sh or cl then
+		SendSWEP(cl,sh,sv,Path,ply,c,cmd,who)
+		return
+	else
+		Print("Could not find required files from the folder\n") 
+	end
+
+end)
+
+
+
+
+
+-- entity
+local PAYLOAD=([===================[
+local _ENT_=[[ENTNAME]]
+local ENT,_REG_=scripted_ents.GetStored(_ENT_),nil
+if not ENT then
+	ENT = {ClassName=_ENT_}
+	_REG_ = true
+end
+
+CONTENT
+
+if ENT then
+	ENT.Model = ENT.Model or Model("models/props_borealis/bluebarrel001.mdl")
+	if not ENT.Base then
+		ENT.Base = "base_anim"
+		ENT.Type = ENT.Type or "anim"
+	end
+	local table_ForEach=table.ForEach table.ForEach=function()end timer.Simple(0,function() table.ForEach=table_ForEach end)
+		scripted_ents.Register(ENT, _ENT_)
+	table.ForEach=table_ForEach
+end
+
+]===================]):gsub("\n"," "):gsub("\t\t"," "):gsub("  "," "):gsub("  "," ")
+
+local function SendENT(cl,sh,sv,Path,ply,c,cmd,who)
+	local who=string.GetFileFromFilename(Path)
+	
+	local entname=string.GetFileFromFilename(Path):gsub("%.lua","")
+	print("SendENT",entname,cl and #cl,sh and #sh,sv and #sv)
+
+	if cl then
+		cl = PAYLOAD:gsub("CONTENT",cl):gsub("ENTNAME",entname)
+		RunOnClients(cl,who or CMD(who),MakeExtras(ply))
+	end
+	if sh then
+		sh = PAYLOAD:gsub("CONTENT",sh):gsub("ENTNAME",entname)
+		RunOnShared(sh,who or CMD(who),MakeExtras(ply))
+	end
+	if sv then
+		sv = PAYLOAD:gsub("CONTENT",sv):gsub("ENTNAME",entname)
+		RunOnServer(sv,who or CMD(who),MakeExtras(ply))
+	end
+	
+end
+
+COMMAND('send_ent',function(ply,c,cmd,who)
+	local path = c[2] and TableToString(c) or c[1]
+	
+	local Path,searchpath=RealFilePath(path)
+	if not Path then 
+		Print("Could not find the file\n") 
+		return
+	end
+	
+	local content = GiveFileContent(Path,searchpath)
+	if content then
+		local sh = content
+		SendENT(nil,sh,nil,Path,ply,c,cmd,who)
+		return
+	end
+	
+	local cl = GiveFileContent(Path..'/cl_init.lua',searchpath)
+	local sh = GiveFileContent(Path..'/shared.lua',searchpath)
+	local sv = GiveFileContent(Path..'/init.lua',searchpath)
+	
+	if sv or sh or cl then
+		SendENT(cl,sh,sv,Path,ply,c,cmd,who)
+		return
+	else
+		Print("Could not find required files from the folder\n") 
+	end
+
+end)
+
+
+
 COMMAND('send_self',function(ply,c,cmd,who)
 
 	local Path,searchpath=RealFilePath(c[2] and TableToString(c) or c[1])
