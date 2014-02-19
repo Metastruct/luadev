@@ -54,7 +54,7 @@ COMMAND('send_cl',function(ply,tbl,cmd,who)
 	local Path,searchpath=RealFilePath(path)
 	if !Path then Print("Could not find the file\n") return end
 
-	local content = GiveFileContent(Path,searchpath)
+	local content = Path and GiveFileContent(Path,searchpath)
 	if !content then Print("Could not read the file\n") return end
 
 	RunOnClient(content,cl,who or CMD(who),MakeExtras(ply))
@@ -66,7 +66,7 @@ COMMAND('send_sv',function(ply,c,cmd,who)
 	local Path,searchpath=RealFilePath(c[2] and TableToString(c) or c[1])
 	if !Path then Print("Could not find the file\n") return end
 
-	local content = GiveFileContent(Path,searchpath)
+	local content = Path and GiveFileContent(Path,searchpath)
 	if !content then Print("Could not read the file\n") return end
 
 	local who=string.GetFileFromFilename(Path)
@@ -80,7 +80,7 @@ COMMAND('send_clients',function(ply,c,cmd,who)
 	local Path,searchpath=RealFilePath(c[2] and TableToString(c) or c[1])
 	if !Path then Print("Could not find the file\n") return end
 
-	local content = GiveFileContent(Path,searchpath)
+	local content = Path and GiveFileContent(Path,searchpath)
 	if !content then Print("Could not read the file\n") return end
 
 	local who=string.GetFileFromFilename(Path)
@@ -94,7 +94,7 @@ COMMAND('send_sh',function(ply,c,cmd,who)
 	local Path,searchpath=RealFilePath(c[2] and TableToString(c) or c[1])
 	if !Path then Print("Could not find the file\n") return end
 
-	local content = GiveFileContent(Path,searchpath)
+	local content = Path and GiveFileContent(Path,searchpath)
 	if !content then Print("Could not read the file\n") return end
 
 	local who=string.GetFileFromFilename(Path)
