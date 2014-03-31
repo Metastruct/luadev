@@ -47,7 +47,7 @@ end
 		--Print("Reading: "..tostring(fullpath))
 		if fullpath==nil or fullpath=="" then return false end
 
-		local content=file.Read(fullpath,searchpath or "GAME")
+		local content=file.Read(fullpath,searchpath or "MOD")
 		if content==0 then return false end
 		return content
 	end
@@ -250,7 +250,7 @@ end
 
 
 function RealFilePath(name)
-	local searchpath = "GAME"
+	local searchpath = "MOD"
 	
 	local RelativePath='lua/'..name
 	
@@ -279,7 +279,7 @@ function AutoComplete(cmd,commandName,args)
 
 	local path = string.GetPathFromFilename(name)
 
-	local searchpath = "GAME"
+	local searchpath = "MOD"
 	
 	local RelativePath='lua/'..(name or "")
 	
@@ -297,7 +297,7 @@ function AutoComplete(cmd,commandName,args)
 	
 	local searchstr = RelativePath.."*"
 	
-	local files,folders=file.Find(searchstr,searchpath or "GAME")
+	local files,folders=file.Find(searchstr,searchpath or "MOD")
 	files=files or {}
 	folders=folders or {}
 	for k,v in pairs(folders) do
