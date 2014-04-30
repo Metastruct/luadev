@@ -174,8 +174,8 @@ COMMAND('send_wep',function(ply,c,cmd,who)
 	local path = c[2] and TableToString(c) or c[1]
 	
 	local Path,searchpath=RealFilePath(path)
-	if not Path then 
-		Print("Could not find the file\n") 
+	if not Path then
+		Print("Could not find the file\n")
 		return
 	end
 	
@@ -194,7 +194,7 @@ COMMAND('send_wep',function(ply,c,cmd,who)
 		SendSWEP(cl,sh,sv,Path,ply,c,cmd,who)
 		return
 	else
-		Print("Could not find required files from the folder\n") 
+		Print("Could not find required files from the folder\n")
 	end
 
 end)
@@ -252,8 +252,8 @@ COMMAND('send_ent',function(ply,c,cmd,who)
 	local path = c[2] and TableToString(c) or c[1]
 	
 	local Path,searchpath=RealFilePath(path)
-	if not Path then 
-		Print("Could not find the file\n") 
+	if not Path then
+		Print("Could not find the file\n")
 		return
 	end
 	
@@ -272,7 +272,7 @@ COMMAND('send_ent',function(ply,c,cmd,who)
 		SendENT(cl,sh,sv,Path,ply,c,cmd,who)
 		return
 	else
-		Print("Could not find required files from the folder\n") 
+		Print("Could not find required files from the folder\n")
 	end
 
 end)
