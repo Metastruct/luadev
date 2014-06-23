@@ -26,6 +26,7 @@ end
 	STAGE_PREPROCESS=1
 	STAGE_COMPILED=2
 	STAGE_POST=3
+	STAGE_PREPROCESSING=4
 	
 -- Figure out what to put to extra
 	function MakeExtras(pl)
@@ -135,10 +136,22 @@ end
 function ProcessHook(stage,...)
 	return hook.Run("LuaDevProcess",stage,...)
 end
+local LuaDevProcess=ProcessHook
 
 local LUADEV_EXECUTE_STRING=RunStringEx
 local LUADEV_EXECUTE_FUNCTION=xpcall
 local LUADEV_COMPILE_STRING=CompileString
+local mt= {
+	__tostring=function(self) return self[1] end,
+	
+	__index={
+		set=function(self,what) self[1]=what end,
+		get=function(self,what) return self[1] end,
+	},
+	--__newindex=function(self,what) rawset(self,1,what) end,
+}
+local strobj=setmetatable({""},mt)
+
 function Run(script,info,extra)
 	--compat
 	if CLIENT and not extra and info and istable(info) then
@@ -151,23 +164,29 @@ function Run(script,info,extra)
 		ErrorNoHalt("LuaDev Warning: info type mismatch: "..type(info)..': '..tostring(info))
 	end
 	
-	local ret,newinfo = ProcessHook(STAGE_PREPROCESS,script,info,extra,nil)
+	-- STAGE_PREPROCESS
+	local ret,newinfo = LuaDevProcess(STAGE_PREPROCESS,script,info,extra,nil)
 	
-		-- replace script
 		if ret == false then return end
 		if ret ~=nil and ret~=true then script = ret end
 	
-	-- replace info
-	if newinfo then info = newinfo end
+		if newinfo then info = newinfo end
+	
+	-- STAGE_PREPROCESSING
+	rawset(strobj,1,script)
+		LuaDevProcess(STAGE_PREPROCESSING,strobj,info,extra,nil)
+	script = rawget(strobj,1)
 	
 	if not script then
 		return false,"no script"
 	end
 	
+	-- Compiling 
+	
 	local func = LUADEV_COMPILE_STRING(script,tostring(info))
 	if not func then compileerr = true end
 	
-	local ret = ProcessHook(STAGE_COMPILED,script,info,extra,func)
+	local ret = LuaDevProcess(STAGE_COMPILED,script,info,extra,func)
 		-- replace function
 		if ret == false then return end
 		if ret ~=nil and isfunction(ret) then
@@ -189,28 +208,8 @@ function Run(script,info,extra)
 	local args = extra and extra.args and (istable(extra.args) and extra.args or {extra.args})
 	if not args then args=nil end
 
-	-- ugly global passing but we can't do it otherwise
 	
-	--[=[
-	_G.LUADEV_COMPILED_FUNCTION = func
-	_G.LUADEV_EXECUTED_OK = nil
-	if args then
-		args=istable(args) and args or {args}
-		_G.LUADEV_ARGS = args
-		local LUADEV_EXECUTOR = LUADEV_EXECUTE_STRING([[_G.LUADEV_RETURNS={_G.LUADEV_COMPILED_FUNCTION(unpack(_G.LUADEV_ARGS or {}))}
-														_G.LUADEV_EXECUTED_OK = true]],"LUADEV_EXECUTOR")
-		_G.LUADEV_ARGS = nil
-	else
-		local LUADEV_EXECUTOR = LUADEV_EXECUTE_STRING([[_G.LUADEV_RETURNS={_G.LUADEV_COMPILED_FUNCTION()}
-														_G.LUADEV_EXECUTED_OK = true]],"LUADEV_EXECUTOR")
-	end
-	local ret = ProcessHook(STAGE_POST,script,info,extra,func,args,_G.LUADEV_EXECUTED_OK,_G.LUADEV_RETURNS)
-	local executed = _G.LUADEV_EXECUTED_OK
-	_G.LUADEV_EXECUTED_OK = nil
-	_G.LUADEV_RETURNS = nil
-	_G.LUADEV_COMPILED_FUNCTION = nil
-	--]=]
-	
+	-- Run the stuff
 	-- because garry's runstring has social engineer sexploits and such
 	local errormessage
 	local function LUADEV_TRACEBACK(errmsg)
@@ -239,7 +238,8 @@ function Run(script,info,extra)
 	local returnvals = {LUADEV_EXECUTE_FUNCTION(func,LUADEV_TRACEBACK,args and unpack(args) or nil)}
 	local ok = returnvals[1] table.remove(returnvals,1)
 	
-	ProcessHook(STAGE_POST,script,info,extra,func,args,ok,returnvals)
+	-- STAGE_POST
+	LuaDevProcess(STAGE_POST,script,info,extra,func,args,ok,returnvals)
 	
 	if not ok then
 		return false,errormessage
