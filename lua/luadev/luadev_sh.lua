@@ -181,7 +181,7 @@ function Run(script,info,extra)
 		return false,"no script"
 	end
 	
-	-- Compiling 
+	-- Compiling
 	
 	local func = LUADEV_COMPILE_STRING(script,tostring(info))
 	if not func then compileerr = true end
