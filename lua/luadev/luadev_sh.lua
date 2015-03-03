@@ -183,8 +183,8 @@ function Run(script,info,extra)
 	
 	-- Compiling
 	
-	local func = LUADEV_COMPILE_STRING(script,tostring(info))
-	if not func then compileerr = true end
+	local func = LUADEV_COMPILE_STRING(script,tostring(info),false)
+	if not func or isstring( func )  then func = false compileerr = func or true end
 	
 	local ret = LuaDevProcess(STAGE_COMPILED,script,info,extra,func)
 		-- replace function
@@ -196,7 +196,7 @@ function Run(script,info,extra)
 
 	if not func then
 		if compileerr then
-			return false,"Syntax error"
+			return false,"Syntax error: "..tostring(compileerr)
 		end
 	end
 	
