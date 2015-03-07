@@ -11,7 +11,7 @@ collectgarbage() -- finalizers will be scheduled for execution in the first pass
 local ok, why = pcall(require, "luasocket")
 
 if not ok then
-	ErrorNoHalt(("\n\n\n\nUnable to load luasocket module (%s), LuaDev socket API will be unavailable\n\n\n\n"):format(tostring(why)))
+	print(("\n\n\n\nUnable to load luasocket module (%s), LuaDev socket API will be unavailable\n\n\n\n"):format(tostring(why)))
 	return
 end
 
