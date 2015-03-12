@@ -1,14 +1,8 @@
 module("luadev",package.seeall)
 
-if CLIENT then return end
-
-luadev_verbose = CreateConVar( "luadev_verbose", "9", { FCVAR_NOTIFY } )
-function Verbose(lev)
-	return (luadev_verbose:GetInt(99) or 99)>=(lev or 1)
-end
 
 -- inform the client of the version
-_luadev_version = CreateConVar( "_luadev_version", "1.5", FCVAR_NOTIFY )
+_luadev_version = CreateConVar( "_luadev_version", "1.6", FCVAR_NOTIFY )
 
 function S2C(cl,msg)
 	if cl and cl:IsValid() and cl:IsPlayer() then
@@ -26,13 +20,15 @@ function RunOnClients(script,who,extra)
 	}
 
 	if Verbose() then
-		Print(tostring(who).." running on clients")
+		PrintX(script,tostring(who).." running on clients")
 	end
 
 	net.Start(Tag)
 		WriteCompressed(script)
 		net.WriteTable(data)
 	net.Broadcast()
+	
+	return true
 end
 
 local function ClearTargets(targets)
@@ -73,7 +69,7 @@ function RunOnClient(script,targets,who,extra)
 	
 	ClearTargets(targets)
 		
-	if table.Count(targets)==0 then error"Invalid player(s)" end
+	if table.Count(targets)==0 then return nil,"no players" end
 	
 	local targetslist
 	for _,target in pairs(targets) do
@@ -83,7 +79,7 @@ function RunOnClient(script,targets,who,extra)
 	
 	
 	if Verbose() then
-		Print(tostring(who).." running on "..tostring(targetslist or "NONE"))
+		PrintX(script,tostring(who).." running on "..tostring(targetslist or "NONE"))
 	end
 
 	net.Start(Tag)
@@ -98,7 +94,7 @@ function RunOnServer(script,who,extra)
 	if not who and extra and isentity(extra) then extra = {ply=extra} end
 	
 	if Verbose() then
-		Print(tostring(who).." running on server")
+		PrintX(script,tostring(who).." running on server")
 	end
 
 	return Run(script,tostring(who),extra)
@@ -158,7 +154,7 @@ function _ReceivedData(len, ply)
 		return RejectCommand (ply)
 	end
 
-	TransmitHook(decoded)
+	if TransmitHook(data)~=nil then return end
 	
 	local identifier = GetPlayerIdentifier(ply,info)
 

@@ -309,7 +309,7 @@ end
 net.Receive(Tag,function(...) _ReceivedData(...) end)
 
 function ToServer(data)
-	TransmitHook(data)
+	if TransmitHook(data)~=nil then return end
 	
 	net.Start(Tag)
 		WriteCompressed(data.src or "")
@@ -337,7 +337,7 @@ function RunOnClients(script,who,extra)
 		extra=extra,
 	}
 
-	ToServer(data)
+	return ToServer(data)
 
 end
 
@@ -346,7 +346,7 @@ function RunOnSelf(script,who,extra)
 	if not isstring(who) then who = nil end
 	if not who and extra and isentity(extra) then extra = {ply=extra} end
 	
-	RunOnClient(script,LocalPlayer(),who,extra)
+	return RunOnClient(script,LocalPlayer(),who,extra)
 end
 
 function RunOnClient(script,targets,who,extra)
@@ -370,7 +370,7 @@ function RunOnClient(script,targets,who,extra)
 		extra=extra,
 	}
 
-	ToServer(data)
+	return ToServer(data)
 
 end
 
@@ -384,7 +384,7 @@ function RunOnServer(script,who,extra)
 		info=who,
 		extra=extra,
 	}
-	ToServer(data)
+	return ToServer(data)
 
 end
 
@@ -399,6 +399,6 @@ function RunOnShared(script,who,extra)
 		extra=extra,
 	}
 
-	ToServer(data)
+	return ToServer(data)
 
 end

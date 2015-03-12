@@ -42,8 +42,9 @@ end
 	end
 
 	function IsOneLiner(script)
-		return string.find(script,"\n")==nil
+		return script and not script:find("\n",1,true)
 	end
+	
 	function GiveFileContent(fullpath,searchpath)
 		--Print("Reading: "..tostring(fullpath))
 		if fullpath==nil or fullpath=="" then return false end
@@ -57,11 +58,29 @@ end
 		return string.Implode(" ",tbl)
 	end
 
-	function Print(msg)
+	function Print(...)
 		Msg("[Luadev"..(SERVER and ' Server' or '').."] ")
-		print(msg)
+		print(...)
+	end
+	
+	if CLIENT then
+		luadev_verbose = CreateClientConVar( "luadev_verbose", "1",true)
+	else
+		luadev_verbose = CreateConVar( "luadev_verbose", "1", { FCVAR_NOTIFY ,FCVAR_ARCHIVE} )
+	end
+	function Verbose(lev)
+		return (luadev_verbose:GetInt() or 99)>=(lev or 1)
 	end
 
+	function PrintX(script,...)
+		local oneline = IsOneLiner(script) and 2
+		local verb = Verbose(oneline)
+		local Msg=not verb and _Msg or Msg
+		local print=not verb and _print or print	
+		Msg("[Luadev"..(SERVER and ' Server' or '').."] ")
+		print(...)
+	end
+	
 	function FindPlayer(plyid)
 		if not plyid or not isstring(plyid) then return end
 		
@@ -115,12 +134,14 @@ end
 	function WriteCompressed(data)
 		if #data==0 then
 			net.WriteUInt( 0, 24 )
+			return false
 		end
 		
 		local compressed = Compress( data )
 		local len = compressed:len()
 		net.WriteUInt( len, 24 )
 		net.WriteData( compressed, len )
+		return compressed
 	end
 
 	function ReadCompressed()
@@ -131,7 +152,15 @@ end
 	end
 
 -- Compiler / runner
-
+local function ValidCode(src,who)
+	local ret = CompileString(src,who or "",false)
+	if type(ret)=='string' then
+		return nil,ret
+	end
+	return ret or true
+end
+_M.ValidScript=ValidCode
+_M.ValidCode=ValidCode
 
 function ProcessHook(stage,...)
 	return hook.Run("LuaDevProcess",stage,...)
@@ -184,7 +213,7 @@ function Run(script,info,extra)
 	-- Compiling
 	
 	local func = LUADEV_COMPILE_STRING(script,tostring(info),false)
-	if not func or isstring( func )  then func = false compileerr = func or true end
+	if not func or isstring( func )  then  compileerr = func or true  func = false end
 	
 	local ret = LuaDevProcess(STAGE_COMPILED,script,info,extra,func)
 		-- replace function
