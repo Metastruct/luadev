@@ -22,7 +22,7 @@ local function add(cmd,callback)
 			easylua.Start(ply)
 			return a,b
 			
-		end,"developers")
+		end,cmd=="lm" and "players" or "developers")
 	end
 end
 
@@ -56,11 +56,15 @@ add("lsc", function(ply, line, target)
 		return false
 	end
 end)
-	
+local sv_allowcslua = GetConVar"sv_allowcslua"
 add("lm", function(ply, line, target)
 	if not line or line=="" then return end
 	if luadev.ValidScript then local valid,err = luadev.ValidScript(line,'lm') if not valid then return false,err end end
+	
+	if not ply:IsAdmin() and not sv_allowcslua:GetBool() then return false,"sv_allowcslua is 0" end
+	
 	luadev.RunOnClient(line, ply,X(ply,"lm"), {ply=ply})
+	
 end)
 
 add("lb", function(ply, line, target)
