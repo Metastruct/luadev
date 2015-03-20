@@ -157,13 +157,18 @@ function _ReceivedData(len, ply)
 	if TransmitHook(data)~=nil then return end
 	
 	local identifier = GetPlayerIdentifier(ply,info)
-
-	if 		target==TO_SERVER  then RunOnServer (script,			identifier,extra)
-	elseif  target==TO_CLIENT  then	RunOnClient (script,target_ply,	identifier,extra)
-	elseif  target==TO_CLIENTS then	RunOnClients(script,			identifier,extra)
-	elseif  target==TO_SHARED  then	RunOnShared (script,			identifier,extra)
+	local ok,err
+	if 		target==TO_SERVER  then ok,err=RunOnServer (script,				identifier,extra)
+	elseif  target==TO_CLIENT  then	ok,err=RunOnClient (script,target_ply,	identifier,extra)
+	elseif  target==TO_CLIENTS then	ok,err=RunOnClients(script,				identifier,extra)
+	elseif  target==TO_SHARED  then	ok,err=RunOnShared (script,				identifier,extra)
 	else  	S2C(ply,"Unknown target")
 	end
-
+	
+	-- no callback system yet
+	if not ok then
+		ErrorNoHalt(tostring(err)..'\n')
+	end
+	
 end
 net.Receive(Tag, function(...) _ReceivedData(...) end)

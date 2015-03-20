@@ -293,7 +293,10 @@ COMMAND('send_self',function(ply,c,cmd,who)
 
 end)
 
+
 if SERVER then return end
+
+net.Receive(Tag,function(...) _ReceivedData(...) end)
 
 function _ReceivedData(len)
 	
@@ -303,10 +306,15 @@ function _ReceivedData(len)
 	local info=decoded.info
 	local extra=decoded.extra
 
-	Run(script,tostring(info),extra)
+	local ok,err = Run(script,tostring(info),extra)
+
+	-- no callback system yet
+	if not ok then
+		ErrorNoHalt(tostring(err)..'\n')
+	end
 
 end
-net.Receive(Tag,function(...) _ReceivedData(...) end)
+
 
 function ToServer(data)
 	if TransmitHook(data)~=nil then return end
