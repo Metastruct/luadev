@@ -8,7 +8,12 @@ hook.Remove("Think", "LuaDev-Socket") -- upvalues will be lost
 collectgarbage()
 collectgarbage() -- finalizers will be scheduled for execution in the first pass, but will only execute in the second pass
 
-local ok, why = pcall(require, "luasocket")
+local ok, why
+if #file.Find("lua/bin/gmcl_luasocket*.dll", "GAME") > 0 then
+	ok, why = pcall(require, "luasocket")
+else
+	why = "File not found"
+end
 
 if not ok then
 	print(("\n\n\n\nUnable to load luasocket module (%s), LuaDev socket API will be unavailable\n\n\n\n"):format(tostring(why)))
