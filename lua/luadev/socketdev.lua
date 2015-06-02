@@ -33,7 +33,8 @@ local methods = {
 	ent = function(contents, who)
 		contents = "ENT = {}; local ENT=ENT; " .. contents .. "; scripted_ents.Register(ENT, '" .. who:sub(0, -5) .. "')"
 		luadev.RunOnShared(contents, who)
-	end
+	end,
+	client = luadev.RunOnClient,
 }
 
 hook.Add("Think", "LuaDev-Socket", function()
@@ -51,10 +52,16 @@ hook.Add("Think", "LuaDev-Socket", function()
 
 		local method = cl:receive("*l")
 		local who = cl:receive("*l")
-		local contents = cl:receive("*a")
 
 		if method and methods[method] then
-			methods[method](contents, who)
+			if method == "client" then
+				local to = cl:receive("*l")
+				local contents = cl:receive("*a")
+				methods[method](contents, {easylua and easylua.FindEntity(to) or player.GetByID(tonumber(to))}, who)
+			else
+				local contents = cl:receive("*a")
+				methods[method](contents, who)
+			end
 		end
 		cl:shutdown()
 	end
