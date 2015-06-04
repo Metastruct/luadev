@@ -8,7 +8,7 @@ COMMAND('run_sv',function(ply,_,script,who)
 	RunOnServer(script,CMD(who),MakeExtras(ply))
 end,true)
 
-COMMAND('run_sh',function(ply,_,cmd,who)
+COMMAND('run_sh',function(ply,_,script,who)
 	RunOnShared(script,CMD(who),MakeExtras(ply))
 end,true)
 
