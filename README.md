@@ -2,21 +2,21 @@
 A simple library to help developers run lua code in-game.
 
 ###### Usage ######
- - ```lua_send_sh``` <filename.lua>
+ - ```lua_send_sh``` \<filename.lua\>
    - Run on server and all clients.
- - ```lua_send_clients``` <filename.lua>
+ - ```lua_send_clients``` \<filename.lua\>
    - Run on a single client
- - ```lua_send_cl``` <client> <filename.lua>
+ - ```lua_send_cl``` \<client\> \<filename.lua\>
    - Run on a single client
- - ```lua_send_sv``` <filename.lua>
+ - ```lua_send_sv``` \<filename.lua\>
    - Run on server
- - ```lua_send_self``` <filename.lua>
+ - ```lua_send_self``` \<filename.lua\>
    - lua_openscript_cl through luadev
- - ```lua_run_client``` ```<part of name/steamid/userid> <code>```
- - ```lua_run_clients``` <code>
- - ```lua_run_sh``` <code>
- - ```lua_run_sv``` <code>
- - ```lua_run_self``` <code>
+ - ```lua_run_client``` \<part of name/steamid/userid\> \<code\>
+ - ```lua_run_clients``` \<code\>
+ - ```lua_run_sh``` \<code\>
+ - ```lua_run_sv``` \<code\>
+ - ```lua_run_self``` \<code\>
 
 Extra commands exist (lua_send_ent for direct entity code ending), unfinished.
 
