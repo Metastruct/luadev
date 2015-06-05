@@ -20,7 +20,7 @@ COMMAND('run_self',function(ply,_,script,who)
 	RunOnSelf(script,CMD(who),MakeExtras(ply))
 end,true)
 
-COMMAND('run_client',function(ply,tbl,cmd,who)
+COMMAND('run_client',function(ply,tbl,script,who)
 
 	if !tbl[1] or !tbl[2] then Print("Syntax: lua_run_client (steamid/userid/uniqueid/part of name) script") return end
 
@@ -31,10 +31,21 @@ COMMAND('run_client',function(ply,tbl,cmd,who)
 		Print("Running script on "..tostring(cl:Name()))
 	end
 
-	table.remove(tbl,1)
-	local cmd=TableToString(tbl)
+	local _, e = script:find('^%s*"[^"]+')
+	if e then
+		script = script:sub(e+2)
+	else
+		local _, e = script:find('^%s*[^%s]+%s')
+		if not e then
+			Print("Invalid Command syntax.")
+			return
+		end
+		script = script:sub(e)
+	end
 
-	RunOnClient(cmd,cl,CMD(who),MakeExtras(ply))
+	script = script:Trim()
+
+	RunOnClient(script,cl,CMD(who),MakeExtras(ply))
 
 end)
 
