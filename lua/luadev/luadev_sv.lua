@@ -118,16 +118,19 @@ function GetPlayerIdentifier(ply,extrainfo)
 	if type(ply)=="Player" then
 	
 		local info=ply:Name()
-		info = info:gsub("%]","}"):gsub("%[","{"):gsub("%z","_") -- hack
+		
 		if Verbose(3) then
-			info=ply:SteamID():gsub("^STEAM_","")
-			info='<'..info..'|'..ply:GetName():sub(1,16)..'>'
+			local sid=ply:SteamID():gsub("^STEAM_","")
+			info=('<%s|%s>'):format(sid,info:sub(1,24))
 		elseif Verbose(2) then
 			info=ply:SteamID():gsub("^STEAM_","")
 		end
 		if extrainfo then
-			info=info..'<'..tostring(extrainfo)..'>'
+			info=('%s<%s>'):format(info,tostring(extrainfo))
 		end
+		
+		info = info:gsub("%]","}"):gsub("%[","{"):gsub("%z","_") -- GMod bug
+		
 		return info
 	else
 		return "??"..tostring(ply)
