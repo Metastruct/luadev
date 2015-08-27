@@ -36,7 +36,7 @@ Parameter ```extra``` is subject to change. It can essentially hold extra inform
  - There is no player autocomplete yet
  - Embeds your steamid on errors. Does not prevent changing it though.
  - Only checks if you are superadmin. Be careful who you let to use this. There is a hook for luadev access check for override.
- - No GUI, use gcompute for example
+ - No GUI, use Sublime-LuaDev for example
 
 ###### Cvars ######
  - ```luadev_verbose``` 0-9
