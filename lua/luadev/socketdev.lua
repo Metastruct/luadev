@@ -4,6 +4,10 @@ if not luadev then
 end
 
 hook.Remove("Think", "LuaDev-Socket") -- upvalues will be lost
+if IsValid(SOCKETDEV) then
+	SOCKETDEV:Remove()
+	SOCKETDEV = nil
+end
 
 collectgarbage()
 collectgarbage() -- finalizers will be scheduled for execution in the first pass, but will only execute in the second pass
@@ -37,7 +41,11 @@ local methods = {
 	client = luadev.RunOnClient,
 }
 
-hook.Add("Think", "LuaDev-Socket", function()
+SOCKETDEV = vgui.Create("Panel")
+SOCKETDEV:SetMouseInputEnabled(false)
+SOCKETDEV:SetKeyBoardInputEnabled(false)
+SOCKETDEV:SetSize(0, 0)
+SOCKETDEV.Think = function()
 	local cl, a, b, c = sock:accept()
 	if cl then
 		system.FlashWindow()
@@ -65,4 +73,4 @@ hook.Add("Think", "LuaDev-Socket", function()
 		end
 		cl:shutdown()
 	end
-end)
+end
