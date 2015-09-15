@@ -29,7 +29,7 @@ Extra commands exist (lua_send_ent for direct entity code ending), unfinished.
  - ```luadev.Run```	(code,desc,extra)
  - ```luadev.RunOnClients```	(code,desc,extra)
  - ```luadev.RunOnClient```	(player,code,desc,extra)
- 
+
 Parameter ```extra``` is subject to change. It can essentially hold extra information to transfer with the code.
 
 ###### Notes ######
@@ -55,6 +55,8 @@ Parameter ```extra``` is subject to change. It can essentially hold extra inform
 ###### Extras ######
  - Sublime support
    - https://github.com/Noiwex/Sublime-LuaDev
+ - Atom support
+   - https://github.com/Lixquid/atom-gmod-luadev
  - GMod error console
    - https://github.com/Metastruct/EPOE
  - Easylua for code augmentation (outdated)
