@@ -33,18 +33,22 @@ local methods = {
 	self = function( sock )
 		local who = sock:receive( "*l" )
 		luadev.RunOnSelf( sock:receive( "*a" ), who )
+		system.FlashWindow()
 	end,
 	sv = function( sock )
 		local who = sock:receive( "*l" )
 		luadev.RunOnServer( sock:receive( "*a" ), who )
+		system.FlashWindow()
 	end,
 	sh = function( sock )
 		local who = sock:receive( "*l" )
 		luadev.RunOnShared( sock:receive( "*a" ), who )
+		system.FlashWindow()
 	end,
 	cl = function( sock )
 		local who = sock:receive( "*l" )
 		luadev.RunOnClients( sock:receive( "*a" ), who )
+		system.FlashWindow()
 	end,
 	ent = function( sock )
 		local who = sock:receive( "*l" )
@@ -54,6 +58,7 @@ local methods = {
 			.. who:sub( 0, -5 )
 			.. "')"
 		luadev.RunOnShared( contents, who )
+		system.FlashWindow()
 	end,
 	client = function( sock )
 		local who = sock:receive( "*l" )
@@ -63,6 +68,7 @@ local methods = {
 				or player.GetByID( tonumber( to ) )
 			to = { to }
 		luadev.RunOnClient( sock:receive( "*a" ), to, who )
+		system.FlashWindow()
 	end,
 }
 
@@ -73,8 +79,6 @@ SOCKETDEV:SetSize(0, 0)
 SOCKETDEV.Think = function()
 	local cl, a, b, c = sock:accept()
 	if cl then
-		system.FlashWindow()
-
 		if cl:getpeername() ~= "127.0.0.1" then
 			print("Refused", cl:getpeername())
 			cl:shutdown()
