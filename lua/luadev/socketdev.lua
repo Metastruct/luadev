@@ -28,17 +28,56 @@ local sock = socket.tcp()
 assert(sock:bind("127.0.0.1", 27099))
 sock:settimeout(0)
 assert(sock:listen(0))
-	
+
 local methods = {
-	self = luadev.RunOnSelf,
-	sv = luadev.RunOnServer,
-	sh = luadev.RunOnShared,
-	cl = luadev.RunOnClients,
-	ent = function(contents, who)
-		contents = "ENT = {}; local ENT=ENT; " .. contents .. "; scripted_ents.Register(ENT, '" .. who:sub(0, -5) .. "')"
-		luadev.RunOnShared(contents, who)
+	self = function( sock )
+		local who = sock:receive( "*l" )
+		luadev.RunOnSelf( sock:receive( "*a" ), who )
+		system.FlashWindow()
 	end,
-	client = luadev.RunOnClient,
+	sv = function( sock )
+		local who = sock:receive( "*l" )
+		luadev.RunOnServer( sock:receive( "*a" ), who )
+		system.FlashWindow()
+	end,
+	sh = function( sock )
+		local who = sock:receive( "*l" )
+		luadev.RunOnShared( sock:receive( "*a" ), who )
+		system.FlashWindow()
+	end,
+	cl = function( sock )
+		local who = sock:receive( "*l" )
+		luadev.RunOnClients( sock:receive( "*a" ), who )
+		system.FlashWindow()
+	end,
+	ent = function( sock )
+		local who = sock:receive( "*l" )
+		local contents = "ENT = {}; local ENT=ENT; "
+			.. sock:receive( "*a" )
+			.. "; scripted_ents.Register(ENT, '"
+			.. who:sub( 0, -5 )
+			.. "')"
+		luadev.RunOnShared( contents, who )
+		system.FlashWindow()
+	end,
+	client = function( sock )
+		local who = sock:receive( "*l" )
+		local to = sock:receive( "*l" )
+			to = easylua
+				and easylua.FindEntity( to )
+				or player.GetByID( tonumber( to ) )
+			to = { to }
+		luadev.RunOnClient( sock:receive( "*a" ), to, who )
+		system.FlashWindow()
+	end,
+	requestPlayers = function( sock )
+		local plys = {}
+		for _, ply in next, player.GetAll() do
+			table.insert( plys, ply:Nick() )
+		end
+
+		sock:send( table.concat( plys, "\n" ) )
+	end
 }
 
 SOCKETDEV = vgui.Create("Panel")
@@ -48,8 +87,6 @@ SOCKETDEV:SetSize(0, 0)
 SOCKETDEV.Think = function()
 	local cl, a, b, c = sock:accept()
 	if cl then
-		system.FlashWindow()
-
 		if cl:getpeername() ~= "127.0.0.1" then
 			print("Refused", cl:getpeername())
 			cl:shutdown()
@@ -59,17 +96,9 @@ SOCKETDEV.Think = function()
 		cl:settimeout(0)
 
 		local method = cl:receive("*l")
-		local who = cl:receive("*l")
 
 		if method and methods[method] then
-			if method == "client" then
-				local to = cl:receive("*l")
-				local contents = cl:receive("*a")
-				methods[method](contents, {easylua and easylua.FindEntity(to) or player.GetByID(tonumber(to))}, who)
-			else
-				local contents = cl:receive("*a")
-				methods[method](contents, who)
-			end
+			methods[ method ]( cl )
 		end
 		cl:shutdown()
 	end
