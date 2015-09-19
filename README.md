@@ -45,6 +45,7 @@ Parameter ```extra``` is subject to change. It can essentially hold extra inform
 ###### Credits ######
  - CapsAdmin
  - Noiwex
+ - Lixquid
  - Python1320
  - PotcFdk
  - Morten
