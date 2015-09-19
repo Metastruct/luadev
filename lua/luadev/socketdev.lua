@@ -70,6 +70,14 @@ local methods = {
 		luadev.RunOnClient( sock:receive( "*a" ), to, who )
 		system.FlashWindow()
 	end,
+	requestPlayers = function( sock )
+		local plys = {}
+		for _, ply in next, player.GetAll() do
+			table.insert( plys, ply:Nick() )
+		end
+
+		sock:send( table.concat( plys, "\n" ) )
+	end
 }
 
 SOCKETDEV = vgui.Create("Panel")
