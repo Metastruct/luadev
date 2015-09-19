@@ -28,7 +28,7 @@ local sock = socket.tcp()
 assert(sock:bind("127.0.0.1", 27099))
 sock:settimeout(0)
 assert(sock:listen(0))
-	
+
 local methods = {
 	self = function( sock )
 		local who = sock:receive( "*l" )
