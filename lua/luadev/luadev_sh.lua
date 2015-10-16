@@ -1,8 +1,11 @@
 module("luadev",package.seeall)
-Tag=_NAME..'tag'
+Tag=_NAME..'1'
+
+--net_retdata = Tag..'_retdata'
 
 if SERVER then
 	util.AddNetworkString(Tag)
+	--util.AddNetworkString(net_retdata)
 end
 
 
@@ -28,11 +31,13 @@ end
 	STAGE_POST=3
 	STAGE_PREPROCESSING=4
 	
--- Figure out what to put to extra
-	function MakeExtras(pl)
+-- Figure out what to put to extra table
+	function MakeExtras(pl,extrat)
 		if pl and isentity(pl) and pl:IsPlayer() then
-			return {ply=pl}
+			extrat = extrat or {}
+			extrat.ply = pl
 		end
+		return extrat
 	end
 
 -- Helpers
@@ -79,6 +84,92 @@ end
 		local print=not verb and _print or print	
 		Msg("[Luadev"..(SERVER and ' Server' or '').."] ")
 		print(...)
+	end
+	
+	specials = {
+		swep = {
+			function(val,extra,script,info)
+				local SWEP=weapons.GetStored(val)
+				if not SWEP then
+					SWEP = {Primary={}, Secondary={},Base = "weapon_base",ClassName = val}
+				end
+				_G.SWEP = SWEP
+			end,
+			function(val,extra,script,info)
+				local tbl = _G.SWEP
+				_G.SWEP = nil
+				if istable(tbl) then
+					--local table_ForEach=table.ForEach table.ForEach=function()end timer.Simple(0,function() table.ForEach=table_ForEach end)
+						if Verbose() then
+							Print("Registering weapon "..tostring(val))
+						end
+						weapons.Register(tbl, val, true)
+					--table.ForEach=table_ForEach
+				end
+			end,
+		},
+		sent = {
+			function(val,extra,script,info)
+				local ENT=weapons.GetStored(val)
+				if not ENT then
+					ENT = {ClassName=val}
+				end
+				_G.ENT = ENT
+			end,
+			function(val,extra,script,info)
+				local tbl = _G.ENT
+				_G.ENT = nil
+				if istable(tbl) then
+				
+					tbl.Model = tbl.Model or Model("models/props_borealis/bluebarrel001.mdl")
+					if not tbl.Base then
+						tbl.Base = "base_anim"
+						tbl.Type = tbl.Type or "anim"
+					end
+					if Verbose() then
+						Print("Registering entity "..tostring(val))
+					end	
+					scripted_ents.Register(tbl, val)
+				end
+			end,
+		},
+		
+		-- TODO --
+		effect = {
+			function(val,extra,script,info)
+				if SERVER then return end
+				_G.EFFECT = {ClassName=val}
+			end,
+			function(val,extra,script,info)
+					if Verbose() then
+						Print("Registering effect "..tostring(val))
+					end
+					if CLIENT then
+						local tbl = _G.EFFECT _G.EFFECT = nil
+						if tbl then
+							effects.Register(_G.EFFECT,val)
+						end
+					end
+			end,
+		},
+	}
+	local specials = specials
+	
+	
+	function ProcessSpecial(mode,script,info,extra)
+		
+		if not extra then return end
+		for special_type,funcs in next,specials do
+			local val = extra[special_type]
+			if val then
+				if Verbose(10) then
+					Print("ProcessSpecial",mode,special_type," -> ",val)
+				end
+				local func = funcs[mode]
+				if func then return func(val,extra,script,info) end
+				return
+			end
+		end
 	end
 	
 	function FindPlayer(plyid)
@@ -203,7 +294,7 @@ function Run(script,info,extra)
 	
 	-- STAGE_PREPROCESSING
 	rawset(strobj,1,script)
-		LuaDevProcess(STAGE_PREPROCESSING,strobj,info,extra,nil)
+		local ret = LuaDevProcess(STAGE_PREPROCESSING,strobj,info,extra,nil)
 	script = rawget(strobj,1)
 	
 	if not script then
@@ -233,7 +324,9 @@ function Run(script,info,extra)
 	lastinfo = info
 	lastscript = script
 	lastfunc = func
-		
+	
+	ProcessSpecial(1,script,info,extra)
+	
 	local args = extra and extra.args and (istable(extra.args) and extra.args or {extra.args})
 	if not args then args=nil end
 
@@ -268,7 +361,8 @@ function Run(script,info,extra)
 	local ok = returnvals[1] table.remove(returnvals,1)
 	
 	-- STAGE_POST
-	LuaDevProcess(STAGE_POST,script,info,extra,func,args,ok,returnvals)
+	local ret = LuaDevProcess(STAGE_POST,script,info,extra,func,args,ok,returnvals)
+	ProcessSpecial(2,script,info,extra)
 	
 	if not ok then
 		return false,errormessage

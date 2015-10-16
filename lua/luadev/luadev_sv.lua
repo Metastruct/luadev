@@ -26,6 +26,9 @@ function RunOnClients(script,who,extra)
 	net.Start(Tag)
 		WriteCompressed(script)
 		net.WriteTable(data)
+		if net.BytesWritten()==65536 then 
+			return nil,"too big"
+		end
 	net.Broadcast()
 	
 	return true
@@ -85,6 +88,9 @@ function RunOnClient(script,targets,who,extra)
 	net.Start(Tag)
 		WriteCompressed(script)
 		net.WriteTable(data)
+		if net.BytesWritten()==65536 then 
+			return nil,"too big"
+		end
 	net.Send(targets)
 	
 	return #targets
