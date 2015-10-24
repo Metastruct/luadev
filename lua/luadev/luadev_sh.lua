@@ -110,7 +110,7 @@ end
 		},
 		sent = {
 			function(val,extra,script,info)
-				local ENT=weapons.GetStored(val)
+				local ENT=scripted_ents.GetStored(val)
 				if not ENT then
 					ENT = {ClassName=val}
 				end
