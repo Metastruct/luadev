@@ -91,7 +91,7 @@ end
 			function(val,extra,script,info)
 				local SWEP=weapons.GetStored(val)
 				if not SWEP then
-					SWEP = {Primary={}, Secondary={},Base = "weapon_base",ClassName = val}
+					SWEP = {Primary={}, Secondary={},Base = "weapon_base",ClassName = val, Folder = 'weapons/'..val }
 				end
 				_G.SWEP = SWEP
 			end,
@@ -111,8 +111,10 @@ end
 		sent = {
 			function(val,extra,script,info)
 				local ENT=scripted_ents.GetStored(val)
-				if not ENT then
-					ENT = {ClassName=val}
+				if ENT and ENT.t then
+					ENT=ENT.t
+				else
+					ENT = {ClassName=val , Folder = 'entities/'..val}
 				end
 				_G.ENT = ENT
 			end,
@@ -138,7 +140,7 @@ end
 		effect = {
 			function(val,extra,script,info)
 				if SERVER then return end
-				_G.EFFECT = {ClassName=val}
+				_G.EFFECT = {ClassName=val,Folder = 'effects/'..val }
 			end,
 			function(val,extra,script,info)
 					if Verbose() then
