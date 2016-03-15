@@ -262,6 +262,89 @@ COMMAND('send_ent',function(ply,c,cmd,who)
 end)
 
 
+COMMAND('watch_kill',function(ply,c,cmd,wholeline)
+	
+	local watchlist = GetWatchList()
+	
+	if c[1]=="" or not c[1] then 
+		Print"Killing all"
+		table.Empty(watchlist) 
+		return 
+	end
+	
+	local t= table.remove(watchlist,tonumber(c[1]))
+	Print("killing",t and tostring(t.path) or "(not found)")
+end,true)
+
+COMMAND('watch',function(ply,c,cmd,wholeline)
+
+ 	local path_orig = c[1]
+	table.remove(c,1)
+	
+	local fpath,searchpath=RealFilePath(path_orig,findpath)
+	if not fpath then Print("Could not find the file\n") return end
+	
+	local content = fpath and GiveFileContent(fpath,searchpath)
+	local time = content and fpath and FileTime(fpath,searchpath)
+	if not content or not time then Print("File not readable\n") return end
+	
+	local found
+	for k,v in next,c do
+		if v=="PATH" then
+			c[k] = path_orig
+			found = true
+		end
+		if v=="FILE" then
+			c[k] = path_orig
+			found = true
+		end
+		if v=="RPATH" then
+			c[k] = fpath
+			found = true
+		end
+		if v=="NOPATH" then
+			c[k] = false
+			found=true
+		end
+	end
+	
+	for i=#c,1,-1 do
+		if c[i]==false then
+			table.remove(c,i)
+		end
+	end
+	
+	if not c[1] then
+		Print"Missing command, assuming lua_send_self" 
+		c[1] = 'lua_send_self'
+	end
+	
+	if not found then
+		table.insert(c,path_orig)
+	end
+	
+	local cmdd = {}
+	for k,v in next,c do
+		cmdd[k]=('%q'):format(tostring(v))
+	end
+	Print("Watching '"..tostring(fpath).."': ",table.concat(cmdd," "))
+	
+	local entry = {
+		path = fpath,
+		searchpath = searchpath,
+		time = time,
+		cmd = c,
+	}
+	
+	local watchlist = GetWatchList()
+	watchlist[#watchlist+1] = entry
+	
+end)
+
+
+
+
+
 
 COMMAND('send_self',function(ply,c,cmd,who)
 

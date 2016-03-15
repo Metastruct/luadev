@@ -91,7 +91,7 @@ end
 			function(val,extra,script,info)
 				local SWEP=weapons.GetStored(val)
 				if not SWEP then
-					SWEP = {Primary={}, Secondary={},Base = "weapon_base",ClassName = val}
+					SWEP = {Primary={}, Secondary={},Base = "weapon_base",ClassName = val, Folder = 'weapons/'..val }
 				end
 				_G.SWEP = SWEP
 			end,
@@ -111,8 +111,10 @@ end
 		sent = {
 			function(val,extra,script,info)
 				local ENT=scripted_ents.GetStored(val)
-				if not ENT then
-					ENT = {ClassName=val}
+				if ENT and ENT.t then
+					ENT=ENT.t
+				else
+					ENT = {ClassName=val , Folder = 'entities/'..val}
 				end
 				_G.ENT = ENT
 			end,
@@ -138,7 +140,7 @@ end
 		effect = {
 			function(val,extra,script,info)
 				if SERVER then return end
-				_G.EFFECT = {ClassName=val}
+				_G.EFFECT = {ClassName=val,Folder = 'effects/'..val }
 			end,
 			function(val,extra,script,info)
 					if Verbose() then
@@ -211,7 +213,48 @@ end
 		end
 		return IsValid(cl) and cl or nil
 	end
+	
 
+-- Watch system
+
+	function FileTime(fullpath,searchpath)
+		--Print("Reading: "..tostring(fullpath))
+		if fullpath==nil or fullpath=="" then return false end
+
+		local t=file.Time(fullpath,searchpath or "MOD")
+		
+		if not t or t==0 then return false end
+		
+		return t
+	end
+
+	local watchlist = rawget(_M,"GetWatchList") and GetWatchList() or {} function GetWatchList() return watchlist end
+	local i=0
+	hook.Add("Think",Tag.."_watchlist",function()
+		if not watchlist[1] then return end
+		
+		i=i+1
+		local entry = watchlist[i]
+		if not entry then
+			i=0
+			entry = watchlist[1]
+			if not entry then return end
+		end
+		
+		local newtime = FileTime(entry.path,entry.searchpath)
+		local oldtime = entry.time
+		if newtime and newtime~=oldtime then
+			
+			entry.time = newtime
+			
+			Msg"[LuaDev] Refresh " print(unpack(entry.cmd))
+			
+			RunConsoleCommand(unpack(entry.cmd))
+			
+		end
+		
+	end)
+	
 -- compression
 
 	function Compress( data )

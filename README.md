@@ -2,6 +2,8 @@
 A simple library to help developers run lua code in-game.
 
 ###### Usage ######
+ - ```lua_watch``` \<filename.lua\>
+   - Run on self the file when its timestamp changes.
  - ```lua_send_sh``` \<filename.lua\>
    - Run on server and all clients.
  - ```lua_send_clients``` \<filename.lua\>
