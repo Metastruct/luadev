@@ -69,6 +69,13 @@ end
 	end
 	
 	if CLIENT then
+		luadev_store = CreateClientConVar( "luadev_store", "1",true)
+		function ShouldStore()
+			return luadev_store:GetBool()
+		end
+	end
+	
+	if CLIENT then
 		luadev_verbose = CreateClientConVar( "luadev_verbose", "1",true)
 	else
 		luadev_verbose = CreateConVar( "luadev_verbose", "1", { FCVAR_NOTIFY ,FCVAR_ARCHIVE} )
@@ -135,7 +142,36 @@ end
 				end
 			end,
 		},
-		
+		stool = {
+			function(val,extra,script,info)
+				local TOOL=scripted_ents.GetStored("gmod_tool")
+				if TOOL and TOOL.Tool and TOOL.Tool[val] then
+					TOOL=TOOL.Tool[val]
+				else
+					if not ToolObj then error"Need ToolObj from gamemode to create new tools" end
+					
+					error"UNIMPLEMENTED: tool not found" 
+					
+					TOOL = ToolObj:Create()
+					TOOL.Mode = toolmode
+					
+				end
+				_G.TOOL = TOOL
+			end,
+			function(val,extra,script,info)
+				local tbl = _G.TOOL
+				_G.TOOL = nil
+				if not istable(tbl) then return end
+				
+				--local TOOL=scripted_ents.GetStored("gmod_tool")
+				--TOOL=TOOL.Tool[val]
+				
+				if tbl.CreateConVars then 
+					tbl:CreateConVars()
+				end
+				
+			end,
+		},		
 		-- TODO --
 		effect = {
 			function(val,extra,script,info)

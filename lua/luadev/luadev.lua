@@ -390,9 +390,21 @@ function _ReceivedData(len)
 
 end
 
+function CheckStore(src)
+	if not ShouldStore() then return end
+	local crc = util.CRC(src)
+	local path = "luadev_hist/".. crc ..'.txt'
+	
+	if file.Exists(path,'DATA') then return end
+	if not file.IsDir("luadev_hist",'DATA') then file.CreateDir("luadev_hist",'DATA') end
+	
+	file.Write(path,tostring(src),'DATA')
+end
 
 function ToServer(data)
 	if TransmitHook(data)~=nil then return end
+	
+	CheckStore(data.src)
 	
 	net.Start(Tag)
 		WriteCompressed(data.src or "")
@@ -434,7 +446,9 @@ end
 function RunOnSelf(script,who,extra)
 	if not isstring(who) then who = nil end
 	if not who and extra and isentity(extra) then extra = {ply=extra} end
-	
+	--if luadev_selftoself:GetBool() then
+	--	Run
+	--end
 	return RunOnClient(script,LocalPlayer(),who,extra)
 end
 
