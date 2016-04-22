@@ -144,18 +144,19 @@ end
 		},
 		stool = {
 			function(val,extra,script,info)
-				local TOOL=scripted_ents.GetStored("gmod_tool")
-				if TOOL and TOOL.Tool and TOOL.Tool[val] then
-					TOOL=TOOL.Tool[val]
+				local gmod_tool=weapons.GetStored("gmod_tool")
+				if gmod_tool and gmod_tool.Tool and gmod_tool.Tool[val] then
+					TOOL=gmod_tool.Tool[val]
+					assert(TOOL and TOOL.Mode == val)
 				else
-					if not ToolObj then error"Need ToolObj from gamemode to create new tools" end
 					
-					error"UNIMPLEMENTED: tool not found" 
+					assert(ToolObj,"Need ToolObj from gamemode to create new tools")
 					
-					TOOL = ToolObj:Create()
+					TOOL = ToolObj:Create(toolmode)
 					TOOL.Mode = toolmode
 					
 				end
+				
 				_G.TOOL = TOOL
 			end,
 			function(val,extra,script,info)
@@ -163,12 +164,17 @@ end
 				_G.TOOL = nil
 				if not istable(tbl) then return end
 				
-				--local TOOL=scripted_ents.GetStored("gmod_tool")
-				--TOOL=TOOL.Tool[val]
+				Print("Registering tool "..tostring(val))
 				
 				if tbl.CreateConVars then 
 					tbl:CreateConVars()
 				end
+				
+				local gmod_tool=weapons.GetStored("gmod_tool")
+				if TOOL and gmod_tool and gmod_tool.Tool then
+					gmod_tool.Tool[val] = TOOL
+				end
+				
 				
 			end,
 		},		
@@ -179,15 +185,15 @@ end
 				_G.EFFECT = {ClassName=val,Folder = 'effects/'..val }
 			end,
 			function(val,extra,script,info)
-					if Verbose() then
-						Print("Registering effect "..tostring(val))
+				if Verbose() then
+					Print("Registering effect "..tostring(val))
+				end
+				if CLIENT then
+					local tbl = _G.EFFECT _G.EFFECT = nil
+					if tbl then
+						effects.Register(_G.EFFECT,val)
 					end
-					if CLIENT then
-						local tbl = _G.EFFECT _G.EFFECT = nil
-						if tbl then
-							effects.Register(_G.EFFECT,val)
-						end
-					end
+				end
 			end,
 		},
 	}
