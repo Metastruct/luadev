@@ -430,13 +430,15 @@ function easylua.RunLua(ply, code, env_name)
 	}
 
 	easylua.Start(ply)
-		local header = ""
+		if s.vars then
+			local header = ""
 
-		for key, value in next,(s.vars or {}) do
-			header = header .. string.format("local %s = %s ", key, key)
+			for key, value in next,(s.vars or {}) do
+				header = header .. string.format("local %s = %s ", key, key)
+			end
+
+			code = header .. "; " .. code
 		end
-
-		code = header .. "; " .. code
 
 		env_name = env_name or string.format("%s", tostring(
 			IsValid(ply) and ply:IsPlayer()
