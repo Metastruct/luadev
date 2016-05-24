@@ -205,7 +205,7 @@ function easylua.FindEntity(str)
 		if comparenick(ply:Nick(), str) then
 			return ply
 		end
-		if comparenick(ply:Nick():gsub("%^%d", ""), str) then
+		if comparenick(ply:Nick():gsub("%^%d+", ""), str) then
 			return ply
 		end
 	end
