@@ -268,6 +268,8 @@ function easylua.CreateEntity(class, callback)
 		undo.AddEntity(this)
 	undo.Finish()
 	
+	me:AddCleanup("props", this)
+	
 	return this
 end
 
