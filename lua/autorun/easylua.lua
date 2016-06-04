@@ -542,10 +542,10 @@ function easylua.EndWeapon(spawn, reinit)
 	if not SWEP then error"missing SWEP" end
 	if not SWEP.ClassName then error"missing classname" end
 	
-	weapons.Register(SWEP, SWEP.ClassName, true)
+	weapons.Register(SWEP, SWEP.ClassName)
 
 	for key, entity in pairs(ents.FindByClass(SWEP.ClassName)) do
-		if entity:GetTable() then table.Merge(entity:GetTable(), SWEP) end
+		--if entity:GetTable() then table.Merge(entity:GetTable(), SWEP) end
 		if reinit then
 			entity:Initialize()
 		end
@@ -576,10 +576,10 @@ function easylua.EndEntity(spawn, reinit)
 		ENT.Type = ENT.Type or "anim"
 	end
 	
-	scripted_ents.Register(ENT, ENT.ClassName, true)
+	scripted_ents.Register(ENT, ENT.ClassName)
 
 	for key, entity in pairs(ents.FindByClass(ENT.ClassName)) do
-		table.Merge(entity:GetTable(), ENT)
+		--table.Merge(entity:GetTable(), ENT)
 		if reinit then
 			entity:Initialize()
 		end
