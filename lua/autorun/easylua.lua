@@ -106,32 +106,26 @@ function easylua.FindEntity(str)
 		if #str > 0 then
 			str = str:lower()
 			local found
-			for key, data in pairs(team.GetAllTeams()) do
+
+			for teamid, data in pairs(team.GetAllTeams()) do
 				if data.Name:lower() == str then
-					found = data.Name:lower()
+					found = teamid
 					break
 				end
 			end
-
-			if not found then
-				local classes = {}
-
-				for key, ent in pairs(ents.GetAll()) do
-					classes[ent:GetClass():lower()] = true
-				end
-
-				for class in pairs(classes) do
-					if class:lower() == str then
-						print("found", class)
-						found = class
-					end
-				end
+			if found then
+				return CreateAllFunction(function(v) return v:IsPlayer() and v:Team() == found end)
 			end
 
+
+			for key, ent in pairs(ents.GetAll()) do
+				if ent:GetClass():lower() == str then
+					found = str
+					break
+				end
+			end
 			if found then
-				local func = CreateAllFunction(function(v) return v:GetClass():lower() == class end)
-				print(func:GetName())
-				return func
+				return CreateAllFunction(function(v) return v:GetClass():lower() == found end)
 			end
 		end
 	end
