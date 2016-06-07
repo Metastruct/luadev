@@ -95,6 +95,10 @@ function easylua.FindEntity(str)
 	if str == "#all" then
 		return all
 	end
+
+	if str == "#us" then
+		return us
+	end
 	
 	if str == "#randply" then
 		return table.Random(player.GetAll())
@@ -620,8 +624,9 @@ do -- all
 	end
 
 	all = CreateAllFunction(function(v) return v:IsPlayer() end)
+	us = CreateAllFunction(function(v) return table.HasValue(we, v) end)
 	props = CreateAllFunction(function(v) return v:GetClass() == "prop_physics" end)
 	-- props = CreateAllFunction(function(v) return util.IsValidPhysicsObject(vm) end)
 	bots = CreateAllFunction(function(v) return v:IsPlayer() and v:IsBot() end)
-	these = CreateAllFunction(function(v) return easylua and table.HasValue(constraint.GetAllConstrainedEntities(this), v) end)
+	these = CreateAllFunction(function(v) return table.HasValue(constraint.GetAllConstrainedEntities(this), v) end)
 end
