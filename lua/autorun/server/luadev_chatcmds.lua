@@ -22,7 +22,7 @@ local function add(cmd,callback)
 			easylua.Start(ply)
 			return a,b
 			
-		end,cmd=="lm" and "players" or "developers", true)
+		end,cmd=="lm" and "players" or "developers")
 	end
 end
 
