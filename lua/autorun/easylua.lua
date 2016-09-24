@@ -33,6 +33,7 @@ local function compareentity(ent, str)
 	return false
 end
 
+local TagPrintOnServer = "elpos"
 if CLIENT then
 	function easylua.PrintOnServer(...)
 		local args = {...}
@@ -41,9 +42,15 @@ if CLIENT then
 		for key, value in pairs(args) do
 			table.insert(new, luadata and luadata.ToString(value) or tostring(value))
 		end
-
-		RunConsoleCommand("easylua_print", unpack(new))
+		net.Start(TagPrintOnServer)
+			local str = table.concat(new," ")
+			local max = 256
+			net.WriteString(str:sub(1,max))
+			net.WriteBool(#str>max)
+		net.SendToServer()
 	end
+else
+	util.AddNetworkString(TagPrintOnServer)
 end
 
 function easylua.Print(...)
@@ -54,7 +61,7 @@ function easylua.Print(...)
 		local args = {...}
 		local str = ""
 
-		Msg(string.format("[EasyLua %s] ", IsValid(me) and me:Nick() or "Sv"))
+		Msg(string.format("[ELua %s] ", IsValid(me) and me:Nick() or "Sv"))
 
 		for key, value in pairs(args) do
 			str = str .. type(value) == "string" and value or luadata.ToString(value) or tostring(value)
@@ -69,14 +76,23 @@ function easylua.Print(...)
 end
 
 if SERVER then
+	--TODO: Antispam
 	function easylua.CMDPrint(ply, cmd, args)
 		args = table.concat(args, ", ")
 
-		Msg(string.format("[EasyLua %s] ", IsValid(ply) and ply:Nick() or "Sv"))
+		Msg(string.format("[ELua %s] ", IsValid(ply) and ply:Nick() or "Sv"))
 		print(args)
 	end
-
 	concommand.Add("easylua_print", easylua.CMDPrint)
+	
+	net.Receive(TagPrintOnServer,function(len,ply)
+		local str = net.ReadString()
+		str=str:sub(1,512)
+		local more = net.ReadBool()
+		Msg(string.format("[ELua %s] ", IsValid(ply) and ply:Nick() or "Sv"))
+		local outstr = ('%s%s'):format(str,more and "..." or ""):gsub("[\r\n]"," ")
+		print(outstr)
+	end)
 end
 
 function easylua.FindEntity(str)
@@ -310,7 +326,7 @@ end
 local started = false
 function easylua.Start(ply)
 	if started then
-		Msg"[EasyLua] "print("Session not ended for ",_G.me or (s.vars and s.vars.me),", restarting session for",ply)
+		Msg"[ELua] "print("Session not ended for ",_G.me or (s.vars and s.vars.me),", restarting session for",ply)
 		easylua.End()
 	end
 	started = true
@@ -374,7 +390,7 @@ end
 
 function easylua.End()
 	if not started then
-		Msg"[EasyLua] "print"Ending session without starting"
+		Msg"[ELua] "print"Ending session without starting"
 	end
 	started = false
 	
