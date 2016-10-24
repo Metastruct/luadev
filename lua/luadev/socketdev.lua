@@ -13,7 +13,7 @@ collectgarbage()
 collectgarbage() -- finalizers will be scheduled for execution in the first pass, but will only execute in the second pass
 
 local ok, why
-if #file.Find("lua/bin/gmcl_luasocket*.dll", "GAME") > 0 then
+if #file.Find("lua/bin/gmcl_luasocket*.dll", "GAME") > 0 or file.Exists("includes/modules/luasocket.lua", "LCL") then
 	ok, why = pcall(require, "luasocket")
 else
 	why = "File not found"
