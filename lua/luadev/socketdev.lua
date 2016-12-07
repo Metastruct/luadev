@@ -95,11 +95,19 @@ SOCKETDEV.Think = function()
 
 		cl:settimeout(0)
 
-		local method = cl:receive("*l")
+		local protocol = cl:receive("*l")
+		local method
+
+		if protocol == "extension" then
+			method = cl:receive("*l")
+		else
+			method = protocol
+		end
 
 		if method and methods[method] then
 			methods[ method ]( cl )
 		end
+
 		cl:shutdown()
 	end
 end
