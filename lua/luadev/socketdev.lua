@@ -1,5 +1,5 @@
 if not luadev then
-	print"nah"
+	print"You fool"
 	return
 end
 
@@ -80,6 +80,7 @@ local methods = {
 	end
 }
 
+-- todo: there might be a problem with textmode gmod
 SOCKETDEV = vgui.Create("Panel")
 SOCKETDEV:SetMouseInputEnabled(false)
 SOCKETDEV:SetKeyBoardInputEnabled(false)

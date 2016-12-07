@@ -2,7 +2,7 @@
 A simple library to help developers run lua code in-game.
 
 ###### SocketDev ######
-LuaDev is now shipped with SocketDev extension. It allows you to execute lua code on various destinations using your text editor. Currently there are some size limitations, but it will be fixed soon™.
+LuaDev is now shipped with SocketDev extension. You'll need luasocket installed for this to work. It allows you to execute lua code on various destinations using your text editor. Currently there are some size limitations, but it will be fixed soon™.
 
 ###### Usage ######
  - ```lua_watch``` \<filename.lua\>
