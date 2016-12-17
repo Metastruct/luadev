@@ -1,16 +1,6 @@
 if not luadev then
-	print"nah"
 	return
 end
-
-hook.Remove("Think", "LuaDev-Socket") -- upvalues will be lost
-if IsValid(SOCKETDEV) then
-	SOCKETDEV:Remove()
-	SOCKETDEV = nil
-end
-
-collectgarbage()
-collectgarbage() -- finalizers will be scheduled for execution in the first pass, but will only execute in the second pass
 
 local ok, why
 if #file.Find("lua/bin/gmcl_luasocket*.dll", "GAME") > 0 or file.Exists("includes/modules/luasocket.lua", "LCL") then
@@ -20,13 +10,29 @@ else
 end
 
 if not ok then
-	print(("\n\n\n\nUnable to load luasocket module (%s), LuaDev socket API will be unavailable\n\n\n\n"):format(tostring(why)))
+	if GetConVarNumber'developer'>0 then
+		Msg"[LuaDev] " print(("Unable to load luasocket module (%s), LuaDev socket API will be unavailable."):format(tostring(why)))
+	end
 	return
 end
+
+
+hook.Add("Think", "LuaDev-Socket",function() end)
+hook.Remove("Think", "LuaDev-Socket") -- upvalues will be lost
+if IsValid(SOCKETDEV) then
+	SOCKETDEV:Remove()
+	SOCKETDEV = nil
+end
+
+-- this is probably not needed. You could just close the socket.
+collectgarbage()
+collectgarbage() -- finalizers will be scheduled for execution in the first pass, but will only execute in the second pass
+
 
 local sock = socket.tcp()
 assert(sock:bind("127.0.0.1", 27099))
 sock:settimeout(0)
+sock:setoption("reuseaddr", true)
 assert(sock:listen(0))
 
 local methods = {
