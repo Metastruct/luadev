@@ -63,6 +63,8 @@ Parameter ```extra``` is subject to change. It can essentially hold extra inform
    - https://github.com/Noiwex/Sublime-LuaDev
  - Atom support
    - https://github.com/Lixquid/atom-gmod-luadev
+ - Visual Studio Code support (wip)
+   - https://marketplace.visualstudio.com/items?itemName=lixquid.gmod-luadev
  - GMod error console
    - https://github.com/Metastruct/EPOE
  - Easylua for code augmentation (outdated)
