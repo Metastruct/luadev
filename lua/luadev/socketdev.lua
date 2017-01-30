@@ -67,6 +67,16 @@ local methods = {
 		luadev.RunOnShared( contents, who )
 		system.FlashWindow()
 	end,
+	wep = function( sock )
+		local who = sock:receive( "*l" )
+		local contents = "SWEP = {}; local SWEP=SWEP; "
+			.. sock:receive( "*a" )
+			.. "; weapons.Register(SWEP, '"
+			.. who:sub( 0, -5 )
+			.. "')"
+		luadev.RunOnShared( contents, who )
+		system.FlashWindow()
+	end,
 	client = function( sock )
 		local who = sock:receive( "*l" )
 		local to = sock:receive( "*l" )
@@ -87,7 +97,7 @@ local methods = {
 	end
 }
 
--- todo: there might be a problem with textmode gmod
+-- todo: there might be a problem with textmode gmod (there's no problem, just checked!)
 SOCKETDEV = vgui.Create("Panel")
 SOCKETDEV:SetMouseInputEnabled(false)
 SOCKETDEV:SetKeyBoardInputEnabled(false)
