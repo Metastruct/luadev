@@ -659,7 +659,11 @@ do -- all
 	all = CreateAllFunction(player.GetAll)
 	humans = CreateAllFunction(player.GetHumans)
 	bots = CreateAllFunction(player.GetBots)
-	us = CreateAllFunction(function() return _G.we end)
+	us = CreateAllFunction(function()
+		if _G.we then return _G.we end
+		if _G.me then return {_G.me} end
+		return {}
+	end)
 
 	props = CreateAllFunction(function() return ents.FindByClass'prop_physics' end)
 	these = CreateAllFunction(function() return constraint.GetAllConstrainedEntities(_G.this) end)
