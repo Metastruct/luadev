@@ -607,19 +607,34 @@ function easylua.EndEntity(spawn, reinit)
 end
 
 do -- all
+	local next = next
+	local type = type
+	local rawget = rawget
+
 	local META = {}
 
+	function META:__call()
+		return rawget(self, 'get')()
+	end
+
 	function META:__index(key)
+		if type(key) == 'number' then
+			return rawget(self, 'get')()[key]
+		end
+
 		return function(_, ...)
 			local args = {}
 
-			for _, ent in pairs(ents.GetAll()) do
-				if (not self.func or self.func(ent)) then
-					if type(ent[key]) == "function" or ent[key] == "table" and type(ent[key].__call) == "function" and getmetatable(ent[key]) then
-						table.insert(args, {ent = ent, args = (ent[key](ent, ...))})
+			for _, ent in next, rawget(self, 'get')() do
+				if type(ent[key]) == "function" or ent[key] == "table" and type(ent[key].__call) == "function" and getmetatable(ent[key]) then
+					local rets = {ent[key](ent, ...)}
+					if select('#', unpack(rets)) > 1 then
+						args[ent] = {rets}
 					else
-						ErrorNoHalt("attempt to call field '" .. key .. "' on ".. tostring(ent) .." a " .. type(ent[key]) .. " value\n")
+						args[ent] = rets[1]
 					end
+				else
+					ErrorNoHalt("attempt to call field '" .. key .. "' on ".. tostring(ent) .." a " .. type(ent[key]) .. " value\n")
 				end
 			end
 
@@ -628,21 +643,24 @@ do -- all
 	end
 
 	function META:__newindex(key, value)
-		for _, ent in pairs(ents.GetAll()) do
-			if not self.func or self.func(ent) then
-				ent[key] = value
-			end
+		if type(key) == 'number' then error'setting number index on entity' end
+		for _, ent in next, rawget(self, 'get')() do
+			ent[key] = value
 		end
 	end
-	
-	function CreateAllFunction(func)
-		return setmetatable({func = func}, META)
+
+
+	function CreateAllFunction(filter)
+		return setmetatable({
+			get = filter,
+		}, META)
 	end
 
-	all = CreateAllFunction(function(v) return v:IsPlayer() end)
-	us = CreateAllFunction(function(v) return table.HasValue(we, v) end)
-	props = CreateAllFunction(function(v) return v:GetClass() == "prop_physics" end)
-	-- props = CreateAllFunction(function(v) return util.IsValidPhysicsObject(vm) end)
-	bots = CreateAllFunction(function(v) return v:IsPlayer() and v:IsBot() end)
-	these = CreateAllFunction(function(v) return table.HasValue(constraint.GetAllConstrainedEntities(this), v) end)
+	all = CreateAllFunction(player.GetAll)
+	humans = CreateAllFunction(player.GetHumans)
+	bots = CreateAllFunction(player.GetBots)
+	us = CreateAllFunction(function() return _G.we end)
+
+	props = CreateAllFunction(function() return ents.FindByClass'prop_physics' end)
+	these = CreateAllFunction(function() return constraint.GetAllConstrainedEntities(_G.this) end)
 end
