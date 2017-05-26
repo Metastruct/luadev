@@ -47,14 +47,17 @@ add("lc", function(ply, line, target)
 end)
 
 add("lsc", function(ply, line, target)
+	local script = string.sub(line, string.find(line, target, 1, true)+#target+1)
+	if luadev.ValidScript then local valid,err = luadev.ValidScript(script,'lsc') if not valid then return false,err end end
+	
+	easylua.Start(ply) -- for _G.we -> #us
 	local ent = easylua.FindEntity(target)
-	if ent:IsPlayer() then
-		local script = string.sub(line, string.find(line, target, 1, true)+#target+1)
-		if luadev.ValidScript then local valid,err = luadev.ValidScript(script,'lsc') if not valid then return false,err end end
-		return luadev.RunOnClient(script,  ent,  X(ply,"lsc"), {ply=ply}) 
-	else
-		return false
+	if type(ent) == 'table' then
+		ent = ent.get()
 	end
+	easylua.End()
+	
+	return luadev.RunOnClient(script,  ent,  X(ply,"lsc"), {ply=ply})
 end)
 local sv_allowcslua = GetConVar"sv_allowcslua"
 add("lm", function(ply, line, target)
