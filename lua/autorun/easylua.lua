@@ -115,7 +115,11 @@ function easylua.FindEntity(str)
 	if str == "#us" then
 		return us
 	end
-	
+
+	if str == "#friends" then
+		return friends
+	end
+
 	if str == "#randply" then
 		return table.Random(player.GetAll())
 	end
@@ -663,6 +667,17 @@ do -- all
 		if _G.we then return _G.we end
 		if _G.me then return {_G.me} end
 		return {}
+	end)
+	friends = CreateAllFunction(function()
+		local me = _G.me
+		local t = {}
+		for k,v in next,player.GetHumans() do
+			if v == me then continue end
+			if (me.IsFriend and me:IsFriend(v) or (CLIENT and v:GetFriendStatus() == 'friend')) then
+				t[#t+1] = v
+			end
+		end
+		return t
 	end)
 
 	props = CreateAllFunction(function() return ents.FindByClass'prop_physics' end)
