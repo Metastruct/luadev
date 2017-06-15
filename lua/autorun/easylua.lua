@@ -138,7 +138,15 @@ function easylua.FindEntity(str)
 				end
 			end
 			if found then
-				return CreateAllFunction(function(v) return v:IsPlayer() and v:Team() == found end)
+				return CreateAllFunction(function()
+					local t = {}
+					for k,v in next,player.GetAll() do
+						if v:IsPlayer() and v:Team() == found then
+							t[#t+1] = v
+						end
+					end
+					return t
+				end)
 			end
 
 
@@ -149,7 +157,9 @@ function easylua.FindEntity(str)
 				end
 			end
 			if found then
-				return CreateAllFunction(function(v) return v:GetClass():lower() == found end)
+				return CreateAllFunction(function()
+					return ents.FindByClass(found)
+				end)
 			end
 		end
 	end
