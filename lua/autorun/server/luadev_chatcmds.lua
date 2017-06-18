@@ -92,11 +92,15 @@ add("table", function(ply, line, target)
 	return luadev.RunOnServer("PrintTable(" .. line .. ")",  X(ply,"table"), {ply=ply}) 
 end)
 
-add("keys", function(ply, line, target)
+add("keys", function(ply, line, table, search)
 	if not line or line=="" then return end
-	if luadev.ValidScript then local valid,err = luadev.ValidScript('x('..line..')','keys') if not valid then return false,err end end
+	if luadev.ValidScript then local valid,err = luadev.ValidScript('x('..table..')','keys') if not valid then return false,err end end
 
-	return luadev.RunOnServer("for k, v in pairs(" .. line .. ") do print(k) end",  X(ply,"keys"), {ply=ply})
+	search = search and search:lower() or ""
+	return luadev.RunOnServer(
+		"local t={} for k,v in pairs(" .. table .. ") do t[#t+1]=tostring(k) end table.sort(t) for k,v in pairs(t) do if string.find(v:lower(),\"" .. search .. "\",1,true) then print(v) end end",
+		X(ply,"keys"), {ply=ply}
+	)
 end)
 
 add("printc", function(ply, line, target)
