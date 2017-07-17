@@ -237,13 +237,29 @@ function easylua.FindEntity(str)
 			return ply
 		end
 	end
-
-	for key, ent in pairs(ents.GetAll()) do
-		if compareentity(ent, str) then
-			return ent
+	
+	if not me or not isentity(me) or not me:IsPlayer() then
+		for key, ent in pairs(ents.GetAll()) do
+			if compareentity(ent, str) then
+				return ent
+			end
+		end
+	else
+		local tr = me:GetEyeTrace()
+		local plpos = tr and tr.HitPos or me:GetPos()
+		local closest,mind = nil,math.huge
+		for key, ent in pairs(ents.GetAll()) do
+			local d = ent:GetPos():DistToSqr(plpos)
+			if d < mind and compareentity(ent, str) then
+				closest = ent
+				mind = d
+			end
+		end
+		if closest then
+			return closest
 		end
 	end
-
+	
 	do -- class
 
 		local _str, idx = str:match("(.-)(%d+)$")
@@ -253,6 +269,24 @@ function easylua.FindEntity(str)
 		else
 			str = str
 			idx = (me and me.easylua_iterator) or 0
+			
+			if me and isentity(me) and me:IsPlayer() then
+				
+				local tr = me:GetEyeTrace()
+				local plpos = tr and tr.HitPos or me:GetPos()
+				local closest,mind = nil,math.huge
+				for key, ent in pairs(ents.GetAll()) do
+					local d = ent:GetPos():DistToSqr(plpos)
+					if d < mind and compare(ent:GetClass(), str) then
+						closest = ent
+						mind = d
+					end
+				end
+				if closest then
+					return closest
+				end
+			end
+			
 		end
 
 		local found = {}
