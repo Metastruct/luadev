@@ -104,6 +104,11 @@ function easylua.FindEntity(str)
 		return this
 	end
 
+	if str == "#owner" and IsEntity(this) and this:IsValid() then
+		local owner = this.CPPIGetOwner and this:CPPIGetOwner() or this:GetOwner()
+		return owner
+	end
+
 	if str == "#me" and IsEntity(me) and me:IsPlayer() then
 		return me
 	end
