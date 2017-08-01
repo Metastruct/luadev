@@ -125,6 +125,10 @@ function easylua.FindEntity(str)
 		return friends
 	end
 
+	if str == "#russians" then
+		return russians
+	end
+
 	if str == "#randply" then
 		return table.Random(player.GetAll())
 	end
@@ -723,6 +727,15 @@ do -- all
 		for k,v in next,player.GetHumans() do
 			if v == me then continue end
 			if (me.IsFriend and me:IsFriend(v) or (CLIENT and v:GetFriendStatus() == 'friend')) then
+				t[#t+1] = v
+			end
+		end
+		return t
+	end)
+	russians = CreateAllFunction(function()
+		local t = {}
+		for k,v in next,player.GetHumans() do
+			if (v.GetCountryCode and v:GetCountryCode() == "RU") then
 				t[#t+1] = v
 			end
 		end
