@@ -730,6 +730,12 @@ do -- all
 		if _G.me then return {_G.me} end
 		return {}
 	end)
+	them = CreateAllFunction(function()
+		local me = _G.me
+		local we = _G.we or {}
+		table.RemoveByValue(we, me)
+		return we
+	end)
 	friends = CreateAllFunction(function()
 		local me = _G.me
 		local t = {}
