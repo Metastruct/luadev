@@ -121,6 +121,10 @@ function easylua.FindEntity(str)
 		return us
 	end
 
+	if str == "#them" then
+		return them
+	end
+
 	if str == "#friends" then
 		return friends
 	end
