@@ -22,7 +22,7 @@ end,true)
 
 COMMAND('run_client',function(ply,tbl,script,who)
 
-	if !tbl[1] or !tbl[2] then Print("Syntax: lua_run_client (steamid/userid/uniqueid/part of name) script") return end
+	if !tbl[1] or !tbl[2] then Print("Syntax: lua_run_client (steamid/userid/accountid/part of name) script") return end
 
 	local cl=FindPlayer(tbl[1])
 
@@ -51,7 +51,7 @@ end)
 
 COMMAND('send_cl',function(ply,tbl,cmd,who)
 
-	if !tbl[1] or !tbl[2] then Print("Syntax: lua_send_cl (steamid/userid/uniqueid/part of name) \"path\"") return end
+	if !tbl[1] or !tbl[2] then Print("Syntax: lua_send_cl (steamid/userid/accountid/part of name) \"path\"") return end
 
 	local cl=FindPlayer(tbl[1])
 

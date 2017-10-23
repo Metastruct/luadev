@@ -221,7 +221,7 @@ end
 		
 		local cl
 		for k,v in pairs(player.GetAll()) do
-			if v:SteamID()==plyid or v:UniqueID()==plyid or tostring(v:UserID())==plyid then
+			if v:SteamID()==plyid or tostring(v:AccountID())==plyid or tostring(v:UserID())==plyid then
 				cl=v
 				break
 			end
