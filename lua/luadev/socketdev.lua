@@ -11,7 +11,7 @@ else
 end
 
 if not ok then
-	if GetConVarNumber'developer'>0 then
+	if GetConVar("developer"):GetInt() > 0 then
 		Msg"[LuaDev] " print(("Unable to load luasocket module (%s), LuaDev socket API will be unavailable."):format(tostring(why)))
 	end
 	return
@@ -87,6 +87,20 @@ local methods = {
 		luadev.RunOnClient( sock:receive( "*a" ), to, who )
 		system.FlashWindow()
 	end,
+	chatTextChanged = function( sock )
+		local contents = sock:receive( "*a" )
+		if chatbox then
+			chatbox.StartChat_override = true
+		end
+		hook.Run( "StartChat" )
+		if chatbox then
+			chatbox.StartChat_override = false
+		end
+		hook.Run( "ChatTextChanged", contents, true )
+	end,
+	finishChat = function( sock )
+		hook.Run( "FinishChat" )
+	end,
 	requestPlayers = function( sock )
 		local plys = {}
 		for _, ply in next, player.GetAll() do
@@ -100,7 +114,7 @@ local methods = {
 -- todo: there might be a problem with textmode gmod (there's no problem, just checked!)
 SOCKETDEV = vgui.Create("Panel")
 SOCKETDEV:SetMouseInputEnabled(false)
-SOCKETDEV:SetKeyBoardInputEnabled(false)
+SOCKETDEV:SetKeyboardInputEnabled(false)
 SOCKETDEV:SetSize(0, 0)
 SOCKETDEV.Think = function()
 	local cl, a, b, c = sock:accept()
