@@ -89,6 +89,8 @@ local methods = {
 	end,
 	chatTextChanged = function( sock )
 		local contents = sock:receive( "*a" )
+		if not contents then return end
+
 		if chatbox then
 			chatbox.StartChat_override = true
 		end
@@ -96,6 +98,7 @@ local methods = {
 		if chatbox then
 			chatbox.StartChat_override = false
 		end
+
 		hook.Run( "ChatTextChanged", contents, true )
 	end,
 	finishChat = function( sock )
