@@ -416,6 +416,7 @@ function easylua.Start(ply)
 
 		vars.me = ply
 		vars.this = trace.Entity
+		vars.those = ents.FindInSphere(trace.HitPos,250)
 		vars.wep = ply:GetActiveWeapon()
 		vars.veh = ply:GetVehicle()
 
