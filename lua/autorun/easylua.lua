@@ -128,6 +128,10 @@ function easylua.FindEntity(str)
 	if str == "#friends" then
 		return friends
 	end
+	
+	if str == "bots" then
+		return bots
+	end
 
 	if str == "#randply" then
 		return table.Random(player.GetAll())
