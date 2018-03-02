@@ -758,4 +758,5 @@ do -- all
 
 	props = CreateAllFunction(function() return ents.FindByClass'prop_physics' end)
 	these = CreateAllFunction(function() return constraint.GetAllConstrainedEntities(_G.this) end)
+	those = CreateAllFunction(function() return ents.FindInSphere(_G.there,250) end)
 end
