@@ -416,7 +416,6 @@ function easylua.Start(ply)
 
 		vars.me = ply
 		vars.this = trace.Entity
-		vars.those = ents.FindInSphere(trace.HitPos,250)
 		vars.wep = ply:GetActiveWeapon()
 		vars.veh = ply:GetVehicle()
 
@@ -759,4 +758,5 @@ do -- all
 
 	props = CreateAllFunction(function() return ents.FindByClass'prop_physics' end)
 	these = CreateAllFunction(function() return constraint.GetAllConstrainedEntities(_G.this) end)
+	those = CreateAllFunction(function() return ents.FindInSphere(_G.there,250) end)
 end
