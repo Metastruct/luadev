@@ -13,7 +13,7 @@ end
 local function comparenick(a, b)
 	local MatchTransliteration = GLib and GLib.UTF8 and GLib.UTF8.MatchTransliteration
 	if not MatchTransliteration then return compare (a, b) end
-	
+
 	if a == b then return true end
 	if a:lower() == b:lower() then return true end
 	if MatchTransliteration(a, b) then return true end
@@ -84,7 +84,7 @@ if SERVER then
 		print(args)
 	end
 	concommand.Add("easylua_print", easylua.CMDPrint)
-	
+
 	net.Receive(TagPrintOnServer,function(len,ply)
 		local str = net.ReadString()
 		str=str:sub(1,512)
@@ -117,6 +117,10 @@ function easylua.FindEntity(str)
 		return all
 	end
 
+	if str == "#afk" then
+		return afk
+	end
+
 	if str == "#us" then
 		return us
 	end
@@ -128,8 +132,12 @@ function easylua.FindEntity(str)
 	if str == "#friends" then
 		return friends
 	end
-	
-	if str == "bots" then
+
+	if str == "#humans" then
+		return humans
+	end
+
+	if str == "#bots" then
 		return bots
 	end
 
@@ -232,28 +240,28 @@ function easylua.FindEntity(str)
 		end
 	end
 	-- search in sensible order
-	
+
 	-- search exact
 	for _,ply in pairs(player.GetAll()) do
 		if ply:Nick()==str then
 			return ply
 		end
 	end
-	
+
 	-- Search bots so we target those first
 	for key, ply in pairs(player.GetBots()) do
 		if comparenick(ply:Nick(), str) then
 			return ply
 		end
 	end
-	
+
 	-- search from beginning of nick
 	for _,ply in pairs(player.GetHumans()) do
 		if ply:Nick():lower():find(str,1,true)==1 then
 			return ply
 		end
 	end
-	
+
 	-- Search normally and search with colorcode stripped
 	for key, ply in pairs(player.GetAll()) do
 		if comparenick(ply:Nick(), str) then
@@ -263,7 +271,7 @@ function easylua.FindEntity(str)
 			return ply
 		end
 	end
-	
+
 	if not me or not isentity(me) or not me:IsPlayer() then
 		for key, ent in pairs(ents.GetAll()) do
 			if compareentity(ent, str) then
@@ -285,7 +293,7 @@ function easylua.FindEntity(str)
 			return closest
 		end
 	end
-	
+
 	do -- class
 
 		local _str, idx = str:match("(.-)(%d+)$")
@@ -295,9 +303,9 @@ function easylua.FindEntity(str)
 		else
 			str = str
 			idx = (me and me.easylua_iterator) or 0
-			
+
 			if me and isentity(me) and me:IsPlayer() then
-				
+
 				local tr = me:GetEyeTrace()
 				local plpos = tr and tr.HitPos or me:GetPos()
 				local closest,mind = nil,math.huge
@@ -312,7 +320,7 @@ function easylua.FindEntity(str)
 					return closest
 				end
 			end
-			
+
 		end
 
 		local found = {}
@@ -355,9 +363,9 @@ function easylua.CreateEntity(class, callback)
 		undo.SetPlayer(me)
 		undo.AddEntity(this)
 	undo.Finish()
-	
+
 	me:AddCleanup("props", this)
-	
+
 	return this
 end
 
@@ -445,17 +453,17 @@ function easylua.Start(ply)
 
 		vars.E = s.FindEntity
 		vars.last = ply.easylua_lastvars
-		
-		
+
+
 		s.vars = vars
 		local old_G={}
 		s.oldvars=old_G
-		
+
 	for k,v in pairs(vars) do old_G[k]=_G[k] _G[k] = v end
 
 	-- let this gc. maybe allow few more recursions.
 	if vars.last and istable(vars.last) then vars.last.last = nil end
-	
+
 	ply.easylua_lastvars = vars
 	ply.easylua_iterator = (ply.easylua_iterator or 0) + 1
 end
@@ -465,7 +473,7 @@ function easylua.End()
 		Msg"[ELua] "print"Ending session without starting"
 	end
 	started = false
-	
+
 	if s.vars then
 		for key, value in pairs(s.vars) do
 			if s.oldvars and s.oldvars[key] then
@@ -483,7 +491,7 @@ do -- env meta
 	local _G = _G
 	local easylua = easylua
 	local tonumber = tonumber
-	
+
 	local nils={
 		["CLIENT"]=true,
 		["SERVER"]=true,
@@ -567,19 +575,19 @@ local	STAGE_POST=3
 local insession = false
 hook.Add("LuaDevProcess","easylua",function(stage,script,info,extra,func)
 	if stage==STAGE_PREPROCESS then
-			
+
 		if insession then
 			insession=false
 			easylua.End()
 		end
-		
+
 		if not istable(extra) or not IsValid(extra.ply) or not script or extra.easylua==false then
 			return
 		end
-			
+
 		insession = true
 		easylua.Start(extra.ply)
-		
+
 		local t={}
 		for key, value in pairs(easylua.vars or {}) do
 			t[#t+1]=key
@@ -587,12 +595,12 @@ hook.Add("LuaDevProcess","easylua",function(stage,script,info,extra,func)
 		if #t>0 then
 			script=' local '..table.concat(t,", ")..' = '..table.concat(t,", ")..' ; '..script
 		end
-		
+
 		--ErrorNoHalt(script)
 		return script
-				
+
 	elseif stage==STAGE_COMPILED then
-		
+
 		if not istable(extra) or not IsValid(extra.ply) or not isfunction(func) or extra.easylua==false then
 			if insession then
 				insession=false
@@ -607,7 +615,7 @@ hook.Add("LuaDevProcess","easylua",function(stage,script,info,extra,func)
 				setfenv(func, easylua.EnvMeta)
 			end
 		end
-			
+
 	elseif stage == STAGE_POST and insession then
 		insession=false
 		easylua.End()
@@ -629,7 +637,7 @@ end
 function easylua.EndWeapon(spawn, reinit)
 	if not SWEP then error"missing SWEP" end
 	if not SWEP.ClassName then error"missing classname" end
-	
+
 	weapons.Register(SWEP, SWEP.ClassName)
 
 	for key, entity in pairs(ents.FindByClass(SWEP.ClassName)) do
@@ -656,14 +664,14 @@ function easylua.StartEntity(classname)
 end
 
 function easylua.EndEntity(spawn, reinit)
-	
+
 	ENT.Model = ENT.Model or Model("models/props_borealis/bluebarrel001.mdl")
-	
+
 	if not ENT.Base then -- there can be Base without Type but no Type without base without redefining every function so um
 		ENT.Base = "base_anim"
 		ENT.Type = ENT.Type or "anim"
 	end
-	
+
 	scripted_ents.Register(ENT, ENT.ClassName)
 
 	for key, entity in pairs(ents.FindByClass(ENT.ClassName)) do
@@ -688,27 +696,34 @@ do -- all
 	local META = {}
 
 	function META:__call()
-		return rawget(self, 'get')()
+		return rawget(self, "get")()
 	end
 
 	function META:__index(key)
-		if type(key) == 'number' then
-			return rawget(self, 'get')()[key]
+		if type(key) == "number" then
+			return rawget(self, "get")()[key]
 		end
 
 		return function(_, ...)
 			local args = {}
 
-			for _, ent in next, rawget(self, 'get')() do
-				if type(ent[key]) == "function" or ent[key] == "table" and type(ent[key].__call) == "function" and getmetatable(ent[key]) then
-					local rets = {ent[key](ent, ...)}
+			for _, ent in ipairs(rawget(self, "get")()) do
+				local prop = ent[type]
+				if type(prop) == "function" or (
+							type(prop) == "table"
+							and (getmetatable(prop) or {}).__call
+						) then
+					local rets = {prop(ent, ...)}
 					if select('#', unpack(rets)) > 1 then
 						args[ent] = {rets}
 					else
 						args[ent] = rets[1]
 					end
 				else
-					ErrorNoHalt("attempt to call field '" .. key .. "' on ".. tostring(ent) .." a " .. type(ent[key]) .. " value\n")
+					ErrorNoHalt(
+						"attempt to call field '" .. key .. "' on "
+						.. tostring(ent) .. " a " .. type(prop) .. " value\n"
+					)
 				end
 			end
 
@@ -717,8 +732,8 @@ do -- all
 	end
 
 	function META:__newindex(key, value)
-		if type(key) == 'number' then error'setting number index on entity' end
-		for _, ent in next, rawget(self, 'get')() do
+		if type(key) == "number" then error"setting number index on entity" end
+		for _, ent in ipairs(rawget(self, "get")()) do
 			ent[key] = value
 		end
 	end
@@ -733,6 +748,16 @@ do -- all
 	all = CreateAllFunction(player.GetAll)
 	humans = CreateAllFunction(player.GetHumans)
 	bots = CreateAllFunction(player.GetBots)
+	afk = CreateAllFunction(function()
+		local t = {}
+		for k,v in ipairs(player.GetAll()) do
+			if not v.IsAFK then break end
+			if v:IsAFK() then
+				t[#t+1] = v
+			end
+		end
+		return t
+	end)
 	us = CreateAllFunction(function()
 		if _G.we then return _G.we end
 		if _G.me then return {_G.me} end
@@ -747,16 +772,16 @@ do -- all
 	friends = CreateAllFunction(function()
 		local me = _G.me
 		local t = {}
-		for k,v in next,player.GetHumans() do
+		for k,v in ipairs(player.GetHumans()) do
 			if v == me then continue end
-			if (me.IsFriend and me:IsFriend(v) or (CLIENT and v:GetFriendStatus() == 'friend')) then
+			if (me.IsFriend and me:IsFriend(v) or (CLIENT and v:GetFriendStatus() == "friend")) then
 				t[#t+1] = v
 			end
 		end
 		return t
 	end)
 
-	props = CreateAllFunction(function() return ents.FindByClass'prop_physics' end)
+	props = CreateAllFunction(function() return ents.FindByClass("prop_physics") end)
 	these = CreateAllFunction(function() return constraint.GetAllConstrainedEntities(_G.this) end)
-	those = CreateAllFunction(function() return ents.FindInSphere(_G.there,250) end)
+	those = CreateAllFunction(function() return ents.FindInSphere(_G.there, 250) end)
 end
