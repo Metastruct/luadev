@@ -708,7 +708,7 @@ do -- all
 			local args = {}
 
 			for _, ent in ipairs(rawget(self, "get")()) do
-				local prop = ent[type]
+				local prop = ent[key]
 				if type(prop) == "function" or (
 							type(prop) == "table"
 							and (getmetatable(prop) or {}).__call
