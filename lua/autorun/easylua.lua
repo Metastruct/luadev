@@ -257,7 +257,8 @@ function easylua.FindEntity(str)
 
 	-- search from beginning of nick
 	for _,ply in pairs(player.GetHumans()) do
-		if ply:Nick():lower():find(str,1,true)==1 then
+		local nick = ( _G.UndecorateNick and UndecorateNick( ply:Nick() ) or ply:Nick() )
+		if nick:lower():find(str,1,true)==1 then
 			return ply
 		end
 	end
