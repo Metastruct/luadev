@@ -268,7 +268,7 @@ function easylua.FindEntity(str)
 			return ply
 		end
 		
-		if( _G.UndecorateNick ) )then
+		if( _G.UndecorateNick )then
 			if comparenick( UndecorateNick( ply:Nick() ), str) then
 				return ply
 			end
