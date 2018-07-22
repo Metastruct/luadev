@@ -184,7 +184,7 @@ function easylua.FindEntity(str)
 			end
 
 
-			for key, ent in pairs(ents.GetAll()) do
+			for key, ent in ipairs(ents.GetAll()) do
 				if ent:GetClass():lower() == str then
 					found = str
 					break
@@ -206,7 +206,7 @@ function easylua.FindEntity(str)
 
 	-- steam id
 	if str:find("STEAM") then
-		for key, _ply in pairs(player.GetAll()) do
+		for key, _ply in ipairs(player.GetAll()) do
 			if _ply:SteamID() == str then
 				return _ply
 			end
@@ -232,7 +232,7 @@ function easylua.FindEntity(str)
 	-- ip
 	if SERVER then
 		if str:find("%d+%.%d+%.%d+%.%d+") then
-			for key, _ply in pairs(player.GetAll()) do
+			for key, _ply in ipairs(player.GetAll()) do
 				if _ply:IPAddress():find(str) then
 					return _ply
 				end
@@ -242,32 +242,32 @@ function easylua.FindEntity(str)
 	-- search in sensible order
 
 	-- search exact
-	for _,ply in pairs(player.GetAll()) do
+	for _,ply in ipairs(player.GetAll()) do
 		if ply:Nick()==str then
 			return ply
 		end
 	end
 
 	-- Search bots so we target those first
-	for key, ply in pairs(player.GetBots()) do
+	for key, ply in ipairs(player.GetBots()) do
 		if comparenick(ply:Nick(), str) then
 			return ply
 		end
 	end
 
 	-- search from beginning of nick
-	for _,ply in pairs(player.GetHumans()) do
+	for _,ply in ipairs(player.GetHumans()) do
 		if ply:Nick():lower():find(str,1,true)==1 then
 			return ply
 		end
 	end
 
 	-- Search normally and search with colorcode stripped
-	for key, ply in pairs(player.GetAll()) do
+	for key, ply in ipairs(player.GetAll()) do
 		if comparenick(ply:Nick(), str) then
 			return ply
 		end
-		
+
 		if( _G.UndecorateNick )then
 			if comparenick( UndecorateNick( ply:Nick() ), str) then
 				return ply
@@ -276,7 +276,7 @@ function easylua.FindEntity(str)
 	end
 
 	if not me or not isentity(me) or not me:IsPlayer() then
-		for key, ent in pairs(ents.GetAll()) do
+		for key, ent in ipairs(ents.GetAll()) do
 			if compareentity(ent, str) then
 				return ent
 			end
@@ -285,7 +285,7 @@ function easylua.FindEntity(str)
 		local tr = me:GetEyeTrace()
 		local plpos = tr and tr.HitPos or me:GetPos()
 		local closest,mind = nil,math.huge
-		for key, ent in pairs(ents.GetAll()) do
+		for key, ent in ipairs(ents.GetAll()) do
 			local d = ent:GetPos():DistToSqr(plpos)
 			if d < mind and compareentity(ent, str) then
 				closest = ent
@@ -312,7 +312,7 @@ function easylua.FindEntity(str)
 				local tr = me:GetEyeTrace()
 				local plpos = tr and tr.HitPos or me:GetPos()
 				local closest,mind = nil,math.huge
-				for key, ent in pairs(ents.GetAll()) do
+				for key, ent in ipairs(ents.GetAll()) do
 					local d = ent:GetPos():DistToSqr(plpos)
 					if d < mind and compare(ent:GetClass(), str) then
 						closest = ent
@@ -328,7 +328,7 @@ function easylua.FindEntity(str)
 
 		local found = {}
 
-		for key, ent in pairs(ents.GetAll()) do
+		for key, ent in ipairs(ents.GetAll()) do
 			if compare(ent:GetClass(), str) then
 				table.insert(found, ent)
 			end
@@ -432,7 +432,7 @@ function easylua.Start(ply)
 
 		vars.we = {}
 
-		for k, v in pairs(ents.FindInSphere(ply:GetPos(), 512)) do
+		for k, v in ipairs(ents.FindInSphere(ply:GetPos(), 512)) do
 			if v:IsPlayer() then
 				table.insert(vars.we, v)
 			end
@@ -643,7 +643,7 @@ function easylua.EndWeapon(spawn, reinit)
 
 	weapons.Register(SWEP, SWEP.ClassName)
 
-	for key, entity in pairs(ents.FindByClass(SWEP.ClassName)) do
+	for key, entity in ipairs(ents.FindByClass(SWEP.ClassName)) do
 		--if entity:GetTable() then table.Merge(entity:GetTable(), SWEP) end
 		if reinit then
 			entity:Initialize()
@@ -677,7 +677,7 @@ function easylua.EndEntity(spawn, reinit)
 
 	scripted_ents.Register(ENT, ENT.ClassName)
 
-	for key, entity in pairs(ents.FindByClass(ENT.ClassName)) do
+	for key, entity in ipairs(ents.FindByClass(ENT.ClassName)) do
 		--table.Merge(entity:GetTable(), ENT)
 		if reinit then
 			entity:Initialize()
