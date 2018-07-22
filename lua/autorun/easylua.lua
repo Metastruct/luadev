@@ -1,5 +1,7 @@
 easylua = {} local s = easylua
 
+local _R = debug.getregistry()
+
 local function compare(a, b)
 
 	if a == b then return true end
@@ -268,8 +270,15 @@ function easylua.FindEntity(str)
 			return ply
 		end
 
-		if( _G.UndecorateNick )then
-			if comparenick( UndecorateNick( ply:Nick() ), str) then
+		if _G.UndecorateNick and comparenick( UndecorateNick( ply:Nick() ), str) then
+			return ply
+		end
+	end
+
+	-- search RealName
+	if _R.Player.RealName then
+		for _, ply in ipairs(player.GetAll()) do
+			if comparenick(ply:RealNick(), str) then
 				return ply
 			end
 		end
