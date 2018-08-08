@@ -468,10 +468,13 @@ function easylua.Start(ply)
 
 
 		s.vars = vars
-		local old_G={}
-		s.oldvars=old_G
+		local old_G = {}
+		s.oldvars = old_G
 
-	for k,v in pairs(vars) do old_G[k]=_G[k] _G[k] = v end
+	for k, v in pairs(vars) do
+		old_G[k] = rawget(_G, k)
+		rawset(_G, k, v)
+	end
 
 	-- let this gc. maybe allow few more recursions.
 	if vars.last and istable(vars.last) then vars.last.last = nil end
@@ -489,9 +492,9 @@ function easylua.End()
 	if s.vars then
 		for key, value in pairs(s.vars) do
 			if s.oldvars and s.oldvars[key] then
-				_G[key] = s.oldvars[key]
+				rawset(_G, key, s.oldvars[key])
 			else
-				_G[key] = nil
+				rawset(_G, key, nil)
 			end
 		end
 	end
