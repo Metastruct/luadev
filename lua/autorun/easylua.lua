@@ -78,8 +78,27 @@ function easylua.Print(...)
 end
 
 if SERVER then
-	--TODO: Antispam
-	function easylua.CMDPrint(ply, cmd, args)
+	-- Rate limiting, still bad
+	local spams={}
+	local function canspam(pl,len)
+		local now = RealTime()
+		local nextspam = spams[pl] or 0
+		if now>nextspam then
+			nextspam = now + len>100 and 3 or 1
+			spams[pl] = nextspam
+			return true
+		else
+			local plstr = tostring(pl)
+			timer.Create("easylua_pspam",5,1,function()
+				Msg "[Easylua Print] Lost messages due to spam: " print(plstr)
+			end)
+		end
+	end
+	
+	function easylua.CMDPrint(ply, cmd, args, fulln)
+		if not canspam(ply,#fulln) then 
+			return
+		end
 		args = table.concat(args, ", ")
 
 		Msg(string.format("[ELua %s] ", IsValid(ply) and ply:Nick() or "Sv"))
@@ -89,6 +108,7 @@ if SERVER then
 
 	net.Receive(TagPrintOnServer,function(len,ply)
 		local str = net.ReadString()
+		if not canspam(ply,#str) then return end		
 		str=str:sub(1,512)
 		local more = net.ReadBool()
 		Msg(string.format("[ELua %s] ", IsValid(ply) and ply:Nick() or "Sv"))
