@@ -79,7 +79,7 @@ end
 
 if SERVER then
 	-- Rate limiting, still bad
-	local spams={}
+	local spams=setmetatable({},{__mode='k'})
 	local function canspam(pl,len)
 		local now = RealTime()
 		local nextspam = spams[pl] or 0
