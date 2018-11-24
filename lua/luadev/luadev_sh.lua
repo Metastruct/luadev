@@ -253,7 +253,7 @@ end
 		if !cl and easylua and easylua.FindEntity then
 			cl = easylua.FindEntity(plyid)
 		end
-		return IsValid(cl) and cl or nil
+		return IsValid(cl) and cl and cl:IsPlayer() or nil
 	end
 	
 

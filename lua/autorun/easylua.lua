@@ -167,19 +167,6 @@ function easylua.FindEntity(str)
 		return table.Random(player.GetAll())
 	end
 
-	if str:sub(1,1) == "#" and #str == 3 then
-		local code = str:sub(2,3)
-		return CreateAllFunction(function()
-			local t = {}
-			for k,v in next,player.GetHumans() do
-				if (v.GetCountryCode and v:GetCountryCode() == code) then
-					t[#t+1] = v
-				end
-			end
-			return t
-		end)
-	end
-
 	if str:sub(1,1) == "#" then
 		local str = str:sub(2)
 
