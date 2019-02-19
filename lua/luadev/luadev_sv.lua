@@ -82,7 +82,7 @@ function RunOnClient(script,targets,who,extra)
 	
 	
 	if Verbose() then
-		if who and #who > 50 then
+		if type(who) == "string" and #who > 50 then
 			who = who:sub(1,50).."...>"
 		end
 		PrintX(script,tostring(who).." running on "..tostring(targetslist or "NONE"))
