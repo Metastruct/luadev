@@ -2,7 +2,7 @@
 
 local function requireExists(moduleName)
 	local osSuffix = assert(
-		(system.IsWindows() and "win32")
+		(system.IsWindows() and (jit.arch~="x64" and "win32" or "win64"))
 		or (system.IsLinux() and "linux")
 		or (system.IsOSX() and "osx"),
 		"couldn't determine system type?"
