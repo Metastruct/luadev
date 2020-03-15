@@ -539,11 +539,18 @@ function CanLuaDev(ply,script,command,target,target_ply,extra)
 		if sv_allowcslua:GetBool() then return true end
 	end
 end
+local luadev_show_access_attempt = SERVER and CreateConVar("luadev_show_access_attempt", '1', {FCVAR_ARCHIVE})
 
-function RejectCommand(pl,x)
-	S2C(pl,"No Access"..(x and (": "..tostring(x)) or ""))
+function RejectCommand(pl, msg)
+    if msg == true or msg == "" then return end -- suppress error in case we want to process luadev command ourselves in a hook
+
+    if SERVER and luadev_show_access_attempt:GetBool() and not pl.luadevaccessfail then
+        pl.luadevaccessfail = true
+        Msg"[LuaDev] " print(pl, "was rejected luadev access", msg)
+    end
+
+    S2C(pl, "No Access" .. (msg and (": " .. tostring(msg)) or ""))
 end
-
 function COMMAND(str,func,complete)
 	if SERVER then
 		concommand.Add('lua_'..str,function(pl,command,cmds,strcmd)
