@@ -158,12 +158,13 @@ function _ReceivedData(len, ply)
 	local target_ply=decoded.dst_ply
 	local extra=decoded.extra or {}
 	if not istable(extra) then
-		return RejectCommand (ply,"bad extra table")
+		return RejectCommand(ply,"bad extra table")
 	end
 	extra.ply=ply
 	
-	if not CanLuaDev  (ply,script,nil,target,target_ply,extra) then
-		return RejectCommand (ply)
+	local can, msg = CanLuaDev(ply,script,nil,target,target_ply,extra)
+	if not can then
+		return RejectCommand(ply,msg)
 	end
 
 	if TransmitHook(data)~=nil then return end
