@@ -507,6 +507,12 @@ function AutoComplete(cmd,commandName,args)
 	
 	local files,folders=file.Find(searchstr,searchpath or "MOD")
 	files=files or {}
+	-- Filter out any files that don't end in ".lua".
+	for i = #files, 1, -1 do
+		if not string.match(files[i], "%.lua$") then
+			table.remove(files, i)
+		end
+	end
 	folders=folders or {}
 	for k,v in pairs(folders) do
 		table.insert(files,v)
