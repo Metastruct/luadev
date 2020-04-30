@@ -715,6 +715,10 @@ do -- all
 	local type = type
 	local rawget = rawget
 
+	local function pack(...)
+		return select('#', ...), {...}
+	end
+
 	local META = {}
 
 	function META:__call()
@@ -735,12 +739,8 @@ do -- all
 							type(prop) == "table"
 							and (getmetatable(prop) or {}).__call
 						) then
-					local rets = {prop(ent, ...)}
-					if select('#', unpack(rets)) > 1 then
-						args[ent] = {rets}
-					else
-						args[ent] = rets[1]
-					end
+					local len, rets = pack(prop(ent, ...))
+					args[ent] = (len > 1 and rets or rets[1])
 				else
 					ErrorNoHalt(
 						"attempt to call field '" .. key .. "' on "
