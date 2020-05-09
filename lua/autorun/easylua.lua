@@ -713,27 +713,26 @@ end
 do -- all
 	local next = next
 	local type = type
-	local rawget = rawget
 
 	local function pack(...)
 		return select('#', ...), {...}
 	end
 
 	local META = {}
-
+	
 	function META:__call()
-		return rawget(self, "get")()
+		error("Undefined __call")
 	end
 
 	function META:__index(key)
 		if type(key) == "number" then
-			return rawget(self, "get")()[key]
+			return self()[key]
 		end
 
 		return function(_, ...)
 			local args = {}
 
-			for _, ent in ipairs(rawget(self, "get")()) do
+			for _, ent in ipairs(self()) do
 				local prop = ent[key]
 				if type(prop) == "function" or (
 							type(prop) == "table"
@@ -755,16 +754,28 @@ do -- all
 
 	function META:__newindex(key, value)
 		if type(key) == "number" then error"setting number index on entity" end
-		for _, ent in ipairs(rawget(self, "get")()) do
+		for _, ent in ipairs(self()) do
 			ent[key] = value
 		end
 	end
-
+	
+	function META:__len()
+		return #self()
+	end
 
 	function CreateAllFunction(filter)
-		return setmetatable({
-			get = filter,
-		}, META)
+		local proxyObj = newproxy(true)
+		local proxyMeta = getmetatable(proxyObj)
+
+		for ind, metamethod in pairs(META)do
+			proxyMeta[ind] = metamethod
+		end
+
+		function proxyMeta:__call()
+			return filter()
+		end
+
+		return proxyObj
 	end
 
 	all = CreateAllFunction(player.GetAll)
