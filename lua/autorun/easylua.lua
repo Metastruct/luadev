@@ -718,11 +718,11 @@ do -- all
 		return select('#', ...), {...}
 	end
 
-    local META = {}
-    
-    function META:__call()
-        error("Undefined __call")
-    end
+	local META = {}
+	
+	function META:__call()
+		error("Undefined __call")
+	end
 
 	function META:__index(key)
 		if type(key) == "number" then
@@ -757,23 +757,23 @@ do -- all
 		for _, ent in ipairs(self()) do
 			ent[key] = value
 		end
-    end
-    
-    function META:__len()
-        return #self()
-    end
+	end
+	
+	function META:__len()
+		return #self()
+	end
 
-    function CreateAllFunction(filter)
-        local proxyObj = newproxy(true)
-        local proxyMeta = getmetatable(proxyObj)
+	function CreateAllFunction(filter)
+		local proxyObj = newproxy(true)
+		local proxyMeta = getmetatable(proxyObj)
 
-        for ind, metamethod in pairs(META)do
-            proxyMeta[ind] = metamethod
-        end
+		for ind, metamethod in pairs(META)do
+			proxyMeta[ind] = metamethod
+		end
 
-        function proxyMeta:__call()
-            return filter()
-        end
+		function proxyMeta:__call()
+			return filter()
+		end
 
 		return proxyObj
 	end
