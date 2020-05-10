@@ -716,10 +716,25 @@ do -- all
 
 	local function pack(...)
 		return select('#', ...), {...}
-	end
+    end
+    
+    local function buildParser(input)
+        if isfunction(input) then return input end
+        local argStr, funcStr = input:match("(.-)->(.+)")
+        
+        if argStr and funcStr then
+            local codeFull = string.format("return function(%s) \n return %s \n end", argStr, funcStr)
+            local funcFactory = CompileString(codeFull, "ELua-FuncFactory", false)
+            
+            if funcFactory then
+                return funcFactory()
+            end
+        end
+    end
 
+    local INTERNAL = {}
 	local META = {}
-	
+    
 	function META:__call()
 		error("Undefined __call")
 	end
@@ -727,7 +742,13 @@ do -- all
 	function META:__index(key)
 		if type(key) == "number" then
 			return self()[key]
-		end
+        end
+        
+        if INTERNAL[key] then
+            return function(_, ...)
+                return INTERNAL[key](self, ...)
+            end
+        end
 
 		return function(_, ...)
 			local args = {}
@@ -753,7 +774,9 @@ do -- all
 	end
 
 	function META:__newindex(key, value)
-		if type(key) == "number" then error"setting number index on entity" end
+        if type(key) == "number" then error"setting number index on entity" end
+        if INTERNAL[key] then  error"cannot set internal method index"  end
+
 		for _, ent in ipairs(self()) do
 			ent[key] = value
 		end
@@ -776,7 +799,43 @@ do -- all
 		end
 
 		return proxyObj
-	end
+    end
+
+    function INTERNAL:map(input)
+        local eval = buildParser(input)
+        local results = {}
+
+        if eval then
+            for _, ent in pairs(self())do
+                local response = eval(ent)
+
+                if response then
+                    table.insert(results, response)
+                end
+            end
+        end
+
+        return CreateAllFunction(function()
+            return results
+        end)
+    end
+    
+    function INTERNAL:filter(input)
+        local eval = buildParser(input)
+        local results = {}
+
+        if eval then
+            for _, ent in pairs(self()) do
+                if eval(ent) then
+                    table.insert(results, ent)
+                end
+            end
+        end
+
+        return CreateAllFunction(function()
+            return results
+        end)
+    end
 
 	all = CreateAllFunction(player.GetAll)
 	humans = CreateAllFunction(player.GetHumans)
@@ -812,8 +871,9 @@ do -- all
 			end
 		end
 		return t
-	end)
-
+    end)
+    
+    npcs = CreateAllFunction(function() return ents.FindByClass("npc_*") end)
 	props = CreateAllFunction(function() return ents.FindByClass("prop_physics") end)
 	these = CreateAllFunction(function() return constraint.GetAllConstrainedEntities(_G.this) end)
 	those = CreateAllFunction(function() return ents.FindInSphere(_G.there, 250) end)
