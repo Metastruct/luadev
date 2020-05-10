@@ -807,9 +807,7 @@ do -- all
 
 		if eval then
 			for _, ent in pairs(self())do
-				local len, response = pack(eval(ent))
-
-				for _, output in ipairs(response) do
+				for _, output in ipairs({eval(ent)}) do
 					table.insert(results, output)
 				end
 			end
