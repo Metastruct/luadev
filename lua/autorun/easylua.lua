@@ -724,7 +724,7 @@ do -- all
 		
 		if argStr and funcStr then
 			local codeFull = string.format("return function(%s) \n return %s \n end", argStr, funcStr)
-			local funcFactory = CompileString(codeFull, "ELua-FuncFactory", false)
+			local funcFactory = CompileString(codeFull, "ELua-FuncFactory")
 			
 			if funcFactory then
 				return funcFactory()
