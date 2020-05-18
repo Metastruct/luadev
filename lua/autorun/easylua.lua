@@ -880,6 +880,10 @@ do -- all
 		return t
 	end)	
 	allof = function(class)
+		if isentity(class) and IsValid(class) then
+			class = class:GetClass()
+		end
+
 		return CreateAllFunction(function()
 			return ents.FindByClass(class)		
 		end)
