@@ -749,27 +749,47 @@ do -- all
 				return INTERNAL[key](self, ...)
 			end
 		end
-
-		return function(_, ...)
-			local args = {}
-
-			for _, ent in ipairs(self()) do
-				local prop = ent[key]
-				if type(prop) == "function" or (
-							type(prop) == "table"
-							and (getmetatable(prop) or {}).__call
-						) then
-					local len, rets = pack(prop(ent, ...))
-					args[ent] = (len > 1 and rets or rets[1])
-				else
-					ErrorNoHalt(
-						"attempt to call field '" .. key .. "' on "
-						.. tostring(ent) .. " a " .. type(prop) .. " value\n"
-					)
-				end
+		
+		local results = {}
+		for source, ent in pairs(self())do
+			if not isfunction(ent[key]) then
+				local origin = isentity(source) and source or ent
+				results[origin] = ent[key]
+			else
+				results = nil
+				break
 			end
+		end
 
-			return args
+		if not results then
+			return function(_, ...)
+				local args = {}
+				for source, ent in pairs(self()) do
+					local prop = ent[key]
+					if type(prop) == "function" or (
+								type(prop) == "table"
+								and (getmetatable(prop) or {}).__call
+							) then
+
+						local len, rets = pack(prop(ent, ...))
+						local origin = isentity(source) and source or ent
+						args[origin] = (len > 1 and rets or rets[1])
+					else
+						ErrorNoHalt(
+							"attempt to call field '" .. key .. "' on "
+							.. tostring(ent) .. " a " .. type(prop) .. " value\n"
+						)
+					end
+				end
+
+				return CreateAllFunction(function()
+					return args
+				end, args) 
+			end
+		else
+			return CreateAllFunction(function()
+				return results
+			end, results)
 		end
 	end
 
@@ -777,13 +797,13 @@ do -- all
 		if type(key) == "number" then error"setting number index on entity" end
 		if INTERNAL[key] then  error"cannot set internal method index"  end
 
-		for _, ent in ipairs(self()) do
+		for _, ent in pairs(self()) do
 			ent[key] = value
 		end
 	end
 	
 
-	function CreateAllFunction(filter)
+	function CreateAllFunction(filter, inputTbl)
 		local allMeta = {}
 
 		for ind, metamethod in pairs(META)do
@@ -794,7 +814,7 @@ do -- all
 			return filter()
 		end
 
-		return setmetatable({}, allMeta)
+		return setmetatable(inputTbl or {}, allMeta)
 	end
 
 	function INTERNAL:map(input)
@@ -811,7 +831,7 @@ do -- all
 
 		return CreateAllFunction(function()
 			return results
-		end)
+		end, results)
 	end
 	
 	function INTERNAL:filter(input)
@@ -828,7 +848,7 @@ do -- all
 
 		return CreateAllFunction(function()
 			return results
-		end)
+		end, results)
 	end
 
 	function INTERNAL:get()
