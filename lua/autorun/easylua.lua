@@ -904,9 +904,10 @@ do -- all
 			class = class:GetClass()
 		end
 
+		local results = ents.FindByClass(class)
 		return CreateAllFunction(function()
-			return ents.FindByClass(class)		
-		end)
+			return results
+		end, results)
 	end
 
 	props = CreateAllFunction(function() return ents.FindByClass("prop_physics") end)
