@@ -291,13 +291,7 @@ function easylua.FindEntity(str)
 		end
 	end
 
-	if not me or not isentity(me) or not me:IsPlayer() then
-		for key, ent in ipairs(ents.GetAll()) do
-			if compareentity(ent, str) then
-				return ent
-			end
-		end
-	else
+	if IsValid(me) and me:IsPlayer() then
 		local tr = me:GetEyeTrace()
 		local plpos = tr and tr.HitPos or me:GetPos()
 		local closest,mind = nil,math.huge
@@ -310,6 +304,12 @@ function easylua.FindEntity(str)
 		end
 		if closest then
 			return closest
+		end
+	else
+		for key, ent in ipairs(ents.GetAll()) do
+			if compareentity(ent, str) then
+				return ent
+			end
 		end
 	end
 
