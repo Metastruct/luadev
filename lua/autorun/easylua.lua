@@ -791,14 +791,10 @@ do -- all
 					end
 				end
 
-				return CreateAllFunction(function()
-					return args
-				end, args) 
+				return CreateAllFunction(args, args) 
 			end
 		else
-			return CreateAllFunction(function()
-				return results
-			end, results)
+			return CreateAllFunction(results, results)
 		end
 	end
 
@@ -820,7 +816,7 @@ do -- all
 		end
 
 		function allMeta:__call()
-			return filter()
+			return (isfunction(filter) and filter() or filter)
 		end
 
 		return setmetatable(inputTbl or {}, allMeta)
@@ -831,16 +827,15 @@ do -- all
 		local results = {}
 
 		if eval then
-			for _, ent in pairs(self())do
+			for source, ent in pairs(self())do
 				for _, output in ipairs({eval(ent)}) do
-					table.insert(results, output)
+					local origin = isentity(source) and source or ent
+					results[origin] = output
 				end
 			end
 		end
 
-		return CreateAllFunction(function()
-			return results
-		end, results)
+		return CreateAllFunction(results, results)
 	end
 	
 	function INTERNAL:filter(input)
@@ -855,9 +850,7 @@ do -- all
 			end
 		end
 
-		return CreateAllFunction(function()
-			return results
-		end, results)
+		return CreateAllFunction(results, results)
 	end
 
 	function INTERNAL:get()
