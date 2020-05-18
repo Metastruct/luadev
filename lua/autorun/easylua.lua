@@ -878,7 +878,12 @@ do -- all
 			end
 		end
 		return t
-	end)
+	end)	
+	allof = function(class)
+		return CreateAllFunction(function()
+			return ents.FindByClass(class)		
+		end)
+	end
 
 	props = CreateAllFunction(function() return ents.FindByClass("prop_physics") end)
 	these = CreateAllFunction(function() return constraint.GetAllConstrainedEntities(_G.this) end)
