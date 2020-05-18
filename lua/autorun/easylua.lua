@@ -732,6 +732,13 @@ do -- all
 		end
 	end
 
+	local nonIndexible = {
+		["function"] = true,
+		["number"] = true,
+		["bool"] = true,
+		["nil"] = true
+	}
+
 	local INTERNAL = {}
 	local META = {}
 	
@@ -770,10 +777,12 @@ do -- all
 								type(prop) == "table"
 								and (getmetatable(prop) or {}).__call
 							) then
-
-						local len, rets = pack(prop(ent, ...))
-						local origin = isentity(source) and source or ent
-						args[origin] = (len > 1 and rets or rets[1])
+						
+						if nonIndexible[type(ent)] or (ent.IsValid and ent:IsValid()) then
+							local len, rets = pack(prop(ent, ...))
+							local origin = isentity(source) and source or ent
+							args[origin] = (len > 1 and rets or rets[1])
+						end
 					else
 						ErrorNoHalt(
 							"attempt to call field '" .. key .. "' on "
