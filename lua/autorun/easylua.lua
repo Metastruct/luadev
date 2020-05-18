@@ -782,23 +782,19 @@ do -- all
 		end
 	end
 	
-	function META:__len()
-		return #self()
-	end
 
 	function CreateAllFunction(filter)
-		local proxyObj = newproxy(true)
-		local proxyMeta = getmetatable(proxyObj)
+		local allMeta = {}
 
 		for ind, metamethod in pairs(META)do
-			proxyMeta[ind] = metamethod
+			allMeta[ind] = metamethod
 		end
 
-		function proxyMeta:__call()
+		function allMeta:__call()
 			return filter()
 		end
 
-		return proxyObj
+		return setmetatable({}, allMeta)
 	end
 
 	function INTERNAL:map(input)
@@ -833,6 +829,10 @@ do -- all
 		return CreateAllFunction(function()
 			return results
 		end)
+	end
+
+	function INTERNAL:get()
+		return self()
 	end
 
 	all = CreateAllFunction(player.GetAll)
@@ -870,8 +870,16 @@ do -- all
 		end
 		return t
 	end)
-	
-	npcs = CreateAllFunction(function() return ents.FindByClass("npc_*") end)
+	npcs = CreateAllFunction(function() 
+		local t = {}
+		for _, ent in pairs(ents.GetAll())do
+			if ent:IsNPC() then
+				table.insert(t, ent)
+			end
+		end
+		return t
+	end)
+
 	props = CreateAllFunction(function() return ents.FindByClass("prop_physics") end)
 	these = CreateAllFunction(function() return constraint.GetAllConstrainedEntities(_G.this) end)
 	those = CreateAllFunction(function() return ents.FindInSphere(_G.there, 250) end)
