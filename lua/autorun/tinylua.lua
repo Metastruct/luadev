@@ -144,7 +144,7 @@ end
 function INTERNAL:map(input)
 	local eval = buildParser(input)
 	return performCall(self, function(results, source, ent)
-		local rets = pack(eval(ent))
+		local rets = pack(eval(ent, source))
 		if #rets ~= 1 then
 			for _, val in pairs(rets) do
 				table.insert(results, val)
@@ -158,7 +158,7 @@ end
 function INTERNAL:filter(input)
 	local eval = buildParser(input)
 	return performCall(self, function(results, source, ent)
-		if eval(ent) then
+		if eval(ent, source) then
 			results[source] = ent
 		end
 	end)
