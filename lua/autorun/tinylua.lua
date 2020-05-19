@@ -48,10 +48,20 @@ local function performCall(tbl, callback)
 	local errors = {}
 	local calls = 0
 
-	for source, ent in pairs(tbl) do
-		local succ, err = pcall(callback, results, source, ent)
-		if not succ then errors[source] = err end
-		calls = calls + 1
+	local iterKey, iterValue = nil, nil
+	while true do
+		local succ, err = pcall(function()
+			while true do
+				iterKey, iterValue = next(tbl, iterKey)
+				if iterKey == nil then break end
+				calls = calls + 1
+
+				callback(results, iterKey, iterValue)
+			end
+		end)
+
+		if not succ then errors[iterKey] = err end
+		if iterKey == nil then break end
 	end
 
 	if table.Count(errors) == calls and calls ~= 0 then
