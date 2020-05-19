@@ -74,7 +74,6 @@ function META:__index(index)
 	end
 
 	return performCall(self, function(results, source, ent)
-		if isfunction(ent) then return end
 		local target = ent[index]
 
 		if isfunction(target) then
