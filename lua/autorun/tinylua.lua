@@ -11,14 +11,14 @@ local function pack(...) -- Convenient argument packer
 		return unpack(tbl, 1, len)
 	end
 
-    return setmetatable(tbl, {
-        __index = function(self, index) 
-            return packFuncs[index] or tbl[index]
-        end,
-        __call = function(...)
-            return len, tbl
-        end
-    })
+	return setmetatable(tbl, {
+		__index = function(self, index) 
+			return packFuncs[index] or tbl[index]
+		end,
+		__call = function(...)
+			return len, tbl
+		end
+	})
 end
 
 local function getStorage(input)
