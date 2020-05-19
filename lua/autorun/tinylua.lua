@@ -54,8 +54,8 @@ local function performCall(tbl, callback)
 		calls = calls + 1
 	end
 
-	if #errors == calls then
-		print("[tinylua] "..errors[1])
+	if #errors == calls and calls ~= 0 then
+		print("[tinylua] "..(errors[1] or ""))
 	end
 
 	local result = Wrap(results)
