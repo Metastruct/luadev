@@ -711,6 +711,7 @@ function easylua.EndEntity(spawn, reinit)
 end
 
 do -- all
+	include("tinylua.lua") -- Force it to load before we use it
 	local next = next
 	local type = type
 
