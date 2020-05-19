@@ -48,14 +48,17 @@ local function performCall(tbl, callback)
 	local errors = {}
 	local calls = 0
 
-	for source, ent in pairs(tbl)do
+	for source, ent in pairs(tbl) do
 		local succ, err = pcall(callback, results, source, ent)
 		if not succ then errors[source] = err end
 		calls = calls + 1
 	end
 
-	if #errors == calls and calls ~= 0 then
-		print("[tinylua] "..(errors[1] or ""))
+	if table.Count(errors) == calls and calls ~= 0 then
+		for _, error in pairs(errors) do
+			MsgC(Color(235, 111, 111), "[tinylua] "..error)
+			break
+		end
 	end
 
 	local result = Wrap(results)
@@ -94,7 +97,7 @@ function META:__call(...)
 	local args = pack(...)
 	
 	if table.Count(self) == 0 then
-		print("Nothing to call!")
+		MsgC(Color(247, 160, 0), "[tinylua] Nothing to call!")
 	end
 
 	return performCall(self, function(results, source, ent)
