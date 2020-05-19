@@ -714,31 +714,6 @@ do -- all
 	local next = next
 	local type = type
 
-	local function pack(...)
-		return select('#', ...), {...}
-	end
-	
-	local function buildParser(input)
-		if isfunction(input) then return input end
-		local argStr, funcStr = input:match("(.-)->(.+)")
-		
-		if argStr and funcStr then
-			local codeFull = string.format("return function(%s) \n return %s \n end", argStr, funcStr)
-			local funcFactory = CompileString(codeFull, "ELua-FuncFactory")
-			
-			if funcFactory then
-				return funcFactory()
-			end
-		end
-	end
-
-	local nonIndexible = {
-		["function"] = true,
-		["number"] = true,
-		["bool"] = true,
-		["nil"] = true
-	}
-
 	local INTERNAL = {}
 	local META = {}
 	
@@ -747,66 +722,14 @@ do -- all
 	end
 
 	function META:__index(key)
-		if type(key) == "number" then
-			return self()[key]
-		end
-		
-		if INTERNAL[key] then
-			return function(_, ...)
-				return INTERNAL[key](self, ...)
-			end
-		end
-		
-		local results = {}
-		for source, ent in pairs(self())do
-			if not isfunction(ent[key]) then
-				local origin = isentity(source) and source or ent
-				results[origin] = ent[key]
-			else
-				results = nil
-				break
-			end
-		end
-
-		if not results then
-			return function(_, ...)
-				local args = {}
-				for source, ent in pairs(self()) do
-					local prop = ent[key]
-					if type(prop) == "function" or (
-								type(prop) == "table"
-								and (getmetatable(prop) or {}).__call
-							) then
-						
-						if nonIndexible[type(ent)] or (ent.IsValid and ent:IsValid()) then
-							local len, rets = pack(prop(ent, ...))
-							local origin = isentity(source) and source or ent
-							args[origin] = (len > 1 and rets or rets[1])
-						end
-					else
-						ErrorNoHalt(
-							"attempt to call field '" .. key .. "' on "
-							.. tostring(ent) .. " a " .. type(prop) .. " value\n"
-						)
-					end
-				end
-
-				return CreateAllFunction(args, args) 
-			end
-		else
-			return CreateAllFunction(results, results)
-		end
+		local wrapped = tinylua(self())
+		return wrapped[key]
 	end
 
 	function META:__newindex(key, value)
-		if type(key) == "number" then error"setting number index on entity" end
-		if INTERNAL[key] then  error"cannot set internal method index"  end
-
-		for _, ent in pairs(self()) do
-			ent[key] = value
-		end
+		local wrapped = tinylua(self())
+		wrapped[key] = value
 	end
-	
 
 	function CreateAllFunction(filter, inputTbl)
 		local allMeta = {}
@@ -820,37 +743,6 @@ do -- all
 		end
 
 		return setmetatable(inputTbl or {}, allMeta)
-	end
-
-	function INTERNAL:map(input)
-		local eval = buildParser(input)
-		local results = {}
-
-		if eval then
-			for source, ent in pairs(self())do
-				for _, output in ipairs({eval(ent)}) do
-					local origin = isentity(source) and source or ent
-					results[origin] = output
-				end
-			end
-		end
-
-		return CreateAllFunction(results, results)
-	end
-	
-	function INTERNAL:filter(input)
-		local eval = buildParser(input)
-		local results = {}
-
-		if eval then
-			for _, ent in pairs(self()) do
-				if eval(ent) then
-					table.insert(results, ent)
-				end
-			end
-		end
-
-		return CreateAllFunction(results, results)
 	end
 
 	function INTERNAL:get()
