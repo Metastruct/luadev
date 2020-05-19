@@ -92,7 +92,11 @@ end
 
 function META:__call(...)
 	local args = pack(...)
-	assert(table.Count(self) ~= 0, "Nothing to call!")
+	
+	if table.Count(self) == 0 then
+		print("Nothing to call!")
+	end
+
 	return performCall(self, function(results, source, ent)
 		if isfunction(ent) then
 			local rets = pack(ent(args:unpack()))
