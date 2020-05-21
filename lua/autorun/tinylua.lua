@@ -48,26 +48,30 @@ local function performCall(tbl, callback)
 	local errors = {}
 	local calls = 0
 
-	local iterKey, iterValue = nil, nil
+	local iKey, iVal = nil, nil
 	while true do
 		local succ, err = pcall(function()
 			while true do
-				iterKey, iterValue = next(tbl, iterKey)
-				if iterKey == nil then break end
+				iKey, iVal = next(tbl, iKey)
+				if iKey == nil then break end
 				calls = calls + 1
 
-				callback(results, iterKey, iterValue)
+				callback(results, iKey, iVal)
 			end
 		end)
 
-		if not succ then errors[iterKey] = err end
-		if iterKey == nil then break end
+		if not succ then errors[iKey] = err end
+		if iKey == nil then break end
 	end
 
-	if table.Count(errors) == calls and calls ~= 0 then
-		for _, error in pairs(errors) do
-			MsgC(Color(235, 111, 111), "[tinylua] "..error)
-			break
+	if table.Count(errors) == calls then
+		if calls ~= 0 then
+			for _, error in pairs(errors) do
+				MsgC(Color(235, 111, 111), "[tinylua] "..error)
+				break
+			end
+		else
+			MsgC(Color(235, 111, 111), "[tinylua] No calls made\n")
 		end
 	end
 
@@ -162,6 +166,23 @@ function INTERNAL:filter(input)
 			results[source] = ent
 		end
 	end)
+end
+
+function INTERNAL:set(vars, val)
+	vars = (istable(vars) and vars or {vars})
+	return performCall(self, function(results, source, ent)
+		for _, var in ipairs(vars) do
+			ent[var] = val
+		end
+
+		results[source] = ent
+	end)
+end
+
+function INTERNAL:first()
+	for _, ent in pairs(self) do
+		return ent
+	end
 end
 
 function INTERNAL:errors()
