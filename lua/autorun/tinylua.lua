@@ -131,12 +131,21 @@ end
 tinylua.Wrap = Wrap
 
 -- INTERNAL Extensions
+local function makePrefix(input)
+	local toEval = string.format(" %s ", input)
+	if toEval:match("%Wreturn%W") or toEval:match("=") then
+		return input
+	end
+
+	return "return "..input
+end
+
 local function buildParser(input)
 	if isfunction(input) then return input end
 	local argStr, funcStr = input:match("(.-)->(.+)")
 	
 	if argStr and funcStr then
-		local codeFull = string.format("return function(%s) \n return %s \n end", argStr, funcStr)
+		local codeFull = string.format("return function(%s)\n%s\nend", argStr, makePrefix(funcStr))
 		local funcFactory = CompileString(codeFull, "funcfactory")
 		
 		if funcFactory then
