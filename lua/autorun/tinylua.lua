@@ -132,13 +132,9 @@ tinylua.Wrap = Wrap
 
 -- INTERNAL Extensions
 local function makePrefix(input)
-	local toEval = string.format(" %s ", input)	
-	if not toEval:match("[<>=~!]=") then
-		if toEval:match("%Wreturn%W") or toEval:match("=") then
-			return input
-		end
-	end
-
+	local toEval = string.format(" %s ", input)
+	if not toEval:match("[<>=~!]=") and toEval:match("=") then return input end
+	if toEval:match("%Wreturn%W") then return input end
 	return "return "..input
 end
 
