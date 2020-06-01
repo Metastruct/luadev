@@ -187,6 +187,12 @@ function INTERNAL:set(vars, val)
 	end)
 end
 
+function INTERNAL:keys()
+	return performCall(self, function(results, source, ent)
+		results[source] = source
+	end)
+end
+
 function INTERNAL:first()
 	for _, ent in pairs(self) do
 		return ent
