@@ -187,6 +187,10 @@ function INTERNAL:set(vars, val)
 	end)
 end
 
+function INTERNAL:IsValid()
+	return false
+end
+
 function INTERNAL:keys()
 	return performCall(self, function(results, source, ent)
 		results[source] = source
