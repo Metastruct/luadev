@@ -68,6 +68,8 @@ Parameter ```extra``` is subject to change. It can essentially hold extra inform
    - https://github.com/Lixquid/atom-gmod-luadev
  - Visual Studio Code support (wip)
    - https://marketplace.visualstudio.com/items?itemName=lixquid.gmod-luadev
+ - Visual Studio Code w/ Remote SSH support
+   - https://github.com/wyozi/vscode-gmod-workspace
  - GMod error console
    - https://github.com/Metastruct/EPOE
  - Easylua for code augmentation (outdated)
