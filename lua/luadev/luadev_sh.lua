@@ -220,7 +220,7 @@ end
 		if not plyid or not isstring(plyid) then return end
 		
 		local cl
-		for k,v in pairs(player.GetAll()) do
+		for k,v in pairs(player.GetHumans()) do
 			if v:SteamID()==plyid or tostring(v:AccountID())==plyid or tostring(v:UserID())==plyid then
 				cl=v
 				break
