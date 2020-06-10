@@ -36,7 +36,7 @@ Extra commands exist (lua_send_ent for direct entity code ending), unfinished.
  - ```luadev.RunOnShared```	(code,desc,extra)
  - ```luadev.Run```	(code,desc,extra)
  - ```luadev.RunOnClients```	(code,desc,extra)
- - ```luadev.RunOnClient```	(player,code,desc,extra)
+ - ```luadev.RunOnClient```	(code,player,desc,extra)
 
 Parameter ```extra``` is subject to change. It can essentially hold extra information to transfer with the code.
 
