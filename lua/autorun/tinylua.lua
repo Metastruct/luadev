@@ -12,7 +12,7 @@ local function pack(...) -- Convenient argument packer
 	end
 
 	return setmetatable(tbl, {
-		__index = function(self, index) 
+		__index = function(self, index)
 			return packFuncs[index] or tbl[index]
 		end,
 		__call = function(...)
@@ -75,9 +75,13 @@ local function performCall(tbl, callback)
 		end
 	end
 
-	local result = Wrap(results)
-	getStorage(result)["errors"] = errors
-	return result
+	if calls ~= 0 then
+		local result = Wrap(results)
+		getStorage(result)["errors"] = errors
+		return result
+	else
+		MsgC(Color(235, 111, 111), "[tinylua] no results!\n")
+	end
 end
 
 function META:__index(index)
@@ -108,7 +112,7 @@ end
 
 function META:__call(...)
 	local args = pack(...)
-	
+
 	if table.Count(self) == 0 then
 		MsgC(Color(247, 160, 0), "[tinylua] Nothing to call!")
 	end
@@ -142,11 +146,11 @@ end
 local function buildParser(input)
 	if isfunction(input) then return input end
 	local argStr, funcStr = input:match("(.-)->(.+)")
-	
+
 	if argStr and funcStr then
 		local codeFull = string.format("return function(%s)\n%s\nend", argStr, makePrefix(funcStr))
 		local funcFactory = CompileString(codeFull, "funcfactory")
-		
+
 		if funcFactory then
 			return funcFactory()
 		end
