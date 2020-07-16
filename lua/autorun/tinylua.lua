@@ -71,17 +71,14 @@ local function performCall(tbl, callback)
 				break
 			end
 		else
-			MsgC(Color(235, 111, 111), "[tinylua] No calls made\n")
+			MsgC(Color(235, 111, 111), "[tinylua] No results!\n")
+			return
 		end
 	end
 
-	if calls ~= 0 then
-		local result = Wrap(results)
-		getStorage(result)["errors"] = errors
-		return result
-	else
-		MsgC(Color(235, 111, 111), "[tinylua] no results!\n")
-	end
+	local result = Wrap(results)
+	getStorage(result)["errors"] = errors
+	return result
 end
 
 function META:__index(index)
@@ -112,11 +109,6 @@ end
 
 function META:__call(...)
 	local args = pack(...)
-
-	if table.Count(self) == 0 then
-		MsgC(Color(247, 160, 0), "[tinylua] Nothing to call!")
-	end
-
 	return performCall(self, function(results, source, ent)
 		if isfunction(ent) then
 			local rets = pack(ent(args:unpack()))
