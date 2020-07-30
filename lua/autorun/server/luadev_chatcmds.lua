@@ -1,5 +1,4 @@
-hook.Add("Think","luadev_cmdsinit",function()
-hook.Remove("Think","luadev_cmdsinit")
+hook.Add("AowlInitialized","luadev_cmdsinit",function()
 
 local function add(cmd,callback)
 	if aowl and aowl.AddCommand then
