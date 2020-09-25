@@ -92,8 +92,8 @@ function META:__index(index)
 		local target = ent[index]
 
 		if isfunction(target) then
-			results[source] = function(_, ...)
-				return target(ent, ...)
+			results[source] = function(fArg, ...)
+				return fArg == self and target(ent, ...) or target(fArg, ...)
 			end
 		else
 			results[source] = target
