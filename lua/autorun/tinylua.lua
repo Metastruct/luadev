@@ -83,11 +83,7 @@ function META:__index(index)
 
 		if isfunction(target) then
 			results[source] = function(fArg, ...)
-				if fArg == self then
-					return target(ent, ...)
-				else
-					return target(fArg, ...)
-				end
+				return target(ent, ...)
 			end
 		else
 			results[source] = target
