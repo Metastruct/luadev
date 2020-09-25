@@ -1,5 +1,4 @@
 tinylua = setmetatable({}, { __call = function(self, ...) return self.Wrap(...) end})
-local STORAGE = setmetatable({}, {__mode = "k"})
 local INTERNAL = {}
 local META = {}
 
@@ -21,12 +20,7 @@ local function pack(...) -- Convenient argument packer
 	})
 end
 
-local function getStorage(input)
-	return STORAGE[getmetatable(input)]
-end
-
 local function Wrap(input)
-	local key = newproxy()
 	local values = {}
 	local meta = {}
 
@@ -34,12 +28,10 @@ local function Wrap(input)
 		values[(tonumber(ind) and val or ind)] = val
 	end
 
-	for ind, val in pairs(META) do
+	for ind, val in pairs(META)do
 		meta[ind] = val
 	end
 
-	STORAGE[key] = {}
-	meta.__metatable = key
 	return setmetatable(values, meta)
 end
 
@@ -66,10 +58,8 @@ local function performCall(tbl, callback)
 
 	if table.Count(errors) == calls then
 		if calls ~= 0 then
-			for _, error in pairs(errors) do
-				MsgC(Color(235, 111, 111), "[tinylua] "..error)
-				break
-			end
+			local _, error = next(errors, nil)
+			MsgC(Color(235, 111, 111), "[tinylua] "..error)
 		else
 			MsgC(Color(235, 111, 111), "[tinylua] No results!\n")
 			return
@@ -77,7 +67,7 @@ local function performCall(tbl, callback)
 	end
 
 	local result = Wrap(results)
-	getStorage(result)["errors"] = errors
+	getmetatable(result)["errors"] = errors
 	return result
 end
 
@@ -204,7 +194,7 @@ function INTERNAL:first()
 end
 
 function INTERNAL:errors()
-	return (getStorage(self).errors or {})
+	return (getmetatable(self).errors or {})
 end
 
 function INTERNAL:get()
