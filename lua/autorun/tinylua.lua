@@ -133,6 +133,10 @@ local function buildParser(input)
 		local codeFull = string.format("return function(%s)\n%s\nend", argStr, makePrefix(funcStr))
 		local funcFactory = CompileString(codeFull, "funcfactory")
 
+		if getfenv(1) then
+			setfenv(funcFactory, getfenv(1))
+		end
+
 		if funcFactory then
 			return funcFactory()
 		end
