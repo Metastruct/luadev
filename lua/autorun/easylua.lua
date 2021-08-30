@@ -94,9 +94,9 @@ if SERVER then
 			end)
 		end
 	end
-	
+
 	function easylua.CMDPrint(ply, cmd, args, fulln)
-		if not canspam(ply,#fulln) then 
+		if not canspam(ply,#fulln) then
 			return
 		end
 		args = table.concat(args, ", ")
@@ -108,7 +108,7 @@ if SERVER then
 
 	net.Receive(TagPrintOnServer,function(len,ply)
 		local str = net.ReadString()
-		if not canspam(ply,#str) then return end		
+		if not canspam(ply,#str) then return end
 		str=str:sub(1,512)
 		local more = net.ReadBool()
 		Msg(string.format("[ELua %s] ", IsValid(ply) and ply:Nick() or "Sv"))
@@ -234,8 +234,11 @@ function easylua.FindEntity(str)
 	end
 
 	-- community id
-	if #str == 17 then
-
+	if #str == 17 and str[1] == "7" then
+		local ply = player.GetBySteamID64(str)
+		if ply and ply:IsValid() then
+			return ply
+		end
 	end
 
 	-- ip
@@ -717,7 +720,7 @@ do -- all
 
 	local INTERNAL = {}
 	local META = {}
-	
+
 	function META:__call()
 		error("Undefined __call")
 	end
@@ -785,7 +788,7 @@ do -- all
 		end
 		return t
 	end)
-	npcs = CreateAllFunction(function() 
+	npcs = CreateAllFunction(function()
 		local t = {}
 		for _, ent in pairs(ents.GetAll())do
 			if ent:IsNPC() then
@@ -793,7 +796,7 @@ do -- all
 			end
 		end
 		return t
-	end)	
+	end)
 	allof = function(class)
 		if isentity(class) and IsValid(class) then
 			class = class:GetClass()
