@@ -143,17 +143,17 @@ end
 			end,
 		},
 		stool = {
-			function(val,extra,script,info)
+			function(toolmode,extra,script,info)
 				local gmod_tool=weapons.GetStored("gmod_tool")
-				if gmod_tool and gmod_tool.Tool and gmod_tool.Tool[val] then
-					TOOL=gmod_tool.Tool[val]
-					assert(TOOL and TOOL.Mode == val)
+				if gmod_tool and gmod_tool.Tool and gmod_tool.Tool[toolmode] then
+					_G.TOOL=gmod_tool.Tool[toolmode]
+					assert(_G.TOOL and _G.TOOL.Mode == toolmode)
 				else
 					
 					assert(ToolObj,"Need ToolObj from gamemode to create new tools")
 					
-					TOOL = ToolObj:Create(toolmode)
-					TOOL.Mode = toolmode
+					_G.TOOL = ToolObj:Create(toolmode)
+					_G.TOOL.Mode = toolmode
 					
 				end
 				
@@ -171,8 +171,8 @@ end
 				end
 				
 				local gmod_tool=weapons.GetStored("gmod_tool")
-				if TOOL and gmod_tool and gmod_tool.Tool then
-					gmod_tool.Tool[val] = TOOL
+				if _G.TOOL and gmod_tool and gmod_tool.Tool then
+					gmod_tool.Tool[val] = _G.TOOL
 				end
 				
 				
@@ -226,7 +226,7 @@ end
 				break
 			end
 		end
-		if !cl then
+		if not cl then
 			for k,v in pairs(player.GetAll()) do
 				if v:Name():lower():find(plyid:lower(),1,true)==1 then
 					cl=v
@@ -234,7 +234,7 @@ end
 				end
 			end
 		end
-		if !cl then
+		if not cl then
 			for k,v in pairs(player.GetAll()) do
 				if string.find(v:Name(),plyid) then
 					cl=v
@@ -242,7 +242,7 @@ end
 				end
 			end
 		end
-		if !cl then
+		if not cl then
 			for k,v in pairs(player.GetAll()) do
 				if v:Name():lower():find(plyid:lower(),1,true) then
 					cl=v
@@ -250,7 +250,7 @@ end
 				end
 			end
 		end
-		if !cl and easylua and easylua.FindEntity then
+		if not cl and easylua and easylua.FindEntity then
 			cl = easylua.FindEntity(plyid)
 		end
 		return IsValid(cl) and cl:IsPlayer() and cl or nil
@@ -474,7 +474,7 @@ function RealFilePath(name)
 		RelativePath='data/'..name
 	end
 	
-	if !file.Exists(RelativePath,searchpath) then return nil end
+	if not file.Exists(RelativePath,searchpath) then return nil end
 	return RelativePath,searchpath
 end
 
@@ -576,6 +576,6 @@ function COMMAND(str,func,complete)
 	else
 		concommand.Add('lua_'..str,function(_,_,cmds,strcmd)
 			func(pl,cmds,strcmd,str)
-		end,(!complete and function(...) return AutoComplete(str,...) end) or nil)
+		end,(not complete and function(...) return AutoComplete(str,...) end) or nil)
 	end
 end
