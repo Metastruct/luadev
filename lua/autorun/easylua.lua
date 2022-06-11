@@ -809,6 +809,8 @@ do -- all
 	end
 
 	props = CreateAllFunction(function() return ents.FindByClass("prop_physics") end)
-	these = CreateAllFunction(function() return constraint.GetAllConstrainedEntities(_G.this) end)
+	if SERVER then
+		these = CreateAllFunction(function() return constraint.GetAllConstrainedEntities(_G.this) end)
+	end
 	those = CreateAllFunction(function() return ents.FindInSphere(_G.there, 250) end)
 end
