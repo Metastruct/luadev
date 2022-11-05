@@ -30,7 +30,7 @@ end
 	STAGE_COMPILED=2
 	STAGE_POST=3
 	STAGE_PREPROCESSING=4
-	
+
 -- Figure out what to put to extra table
 	function MakeExtras(pl,extrat)
 		if pl and isentity(pl) and pl:IsPlayer() then
@@ -49,7 +49,7 @@ end
 	function IsOneLiner(script)
 		return script and not script:find("\n",1,true)
 	end
-	
+
 	function GiveFileContent(fullpath,searchpath)
 		--Print("Reading: "..tostring(fullpath))
 		if fullpath==nil or fullpath=="" then return false end
@@ -64,17 +64,21 @@ end
 	end
 
 	function Print(...)
-		Msg("[Luadev"..(SERVER and ' Server' or '').."] ")
-		print(...)
+		if metalog then
+			metalog.info("Luadev", SERVER and "Server" or "Client", ...)
+		else
+			Msg("[Luadev"..(SERVER and ' Server' or '').."] ")
+			print(...)
+		end
 	end
-	
+
 	if CLIENT then
 		luadev_store = CreateClientConVar( "luadev_store", "1",true)
 		function ShouldStore()
 			return luadev_store:GetBool()
 		end
 	end
-	
+
 	if CLIENT then
 		luadev_verbose = CreateClientConVar( "luadev_verbose", "1",true)
 	else
@@ -87,12 +91,16 @@ end
 	function PrintX(script,...)
 		local oneline = IsOneLiner(script) and 2
 		local verb = Verbose(oneline)
-		local Msg=not verb and _Msg or Msg
-		local print=not verb and _print or print	
-		Msg("[Luadev"..(SERVER and ' Server' or '').."] ")
-		print(...)
+		if metalog then
+			metalog[verb and "info" or "debug"]("Luadev", SERVER and "Server" or "Client", ...)
+		else
+			local Msg=not verb and _Msg or Msg
+			local print=not verb and _print or print
+			Msg("[Luadev"..(SERVER and ' Server' or '').."] ")
+			print(...)
+		end
 	end
-	
+
 	specials = {
 		swep = {
 			function(val,extra,script,info)
@@ -129,7 +137,7 @@ end
 				local tbl = _G.ENT
 				_G.ENT = nil
 				if istable(tbl) then
-				
+
 					tbl.Model = tbl.Model or Model("models/props_borealis/bluebarrel001.mdl")
 					if not tbl.Base then
 						tbl.Base = "base_anim"
@@ -137,7 +145,7 @@ end
 					end
 					if Verbose() then
 						Print("Registering entity "..tostring(val))
-					end	
+					end
 					scripted_ents.Register(tbl, val)
 				end
 			end,
@@ -149,35 +157,35 @@ end
 					_G.TOOL=gmod_tool.Tool[toolmode]
 					assert(_G.TOOL and _G.TOOL.Mode == toolmode)
 				else
-					
+
 					assert(ToolObj,"Need ToolObj from gamemode to create new tools")
-					
+
 					_G.TOOL = ToolObj:Create(toolmode)
 					_G.TOOL.Mode = toolmode
-					
+
 				end
-				
+
 				_G.TOOL = TOOL
 			end,
 			function(val,extra,script,info)
 				local tbl = _G.TOOL
 				_G.TOOL = nil
 				if not istable(tbl) then return end
-				
+
 				Print("Registering tool "..tostring(val))
-				
-				if tbl.CreateConVars then 
+
+				if tbl.CreateConVars then
 					tbl:CreateConVars()
 				end
-				
+
 				local gmod_tool=weapons.GetStored("gmod_tool")
 				if _G.TOOL and gmod_tool and gmod_tool.Tool then
 					gmod_tool.Tool[val] = _G.TOOL
 				end
-				
-				
+
+
 			end,
-		},		
+		},
 		-- TODO --
 		effect = {
 			function(val,extra,script,info)
@@ -198,10 +206,10 @@ end
 		},
 	}
 	local specials = specials
-	
-	
+
+
 	function ProcessSpecial(mode,script,info,extra)
-		
+
 		if not extra then return end
 		for special_type,funcs in next,specials do
 			local val = extra[special_type]
@@ -215,10 +223,10 @@ end
 			end
 		end
 	end
-	
+
 	function FindPlayer(plyid)
 		if not plyid or not isstring(plyid) then return end
-		
+
 		local cl
 		for k,v in pairs(player.GetHumans()) do
 			if v:SteamID()==plyid or tostring(v:AccountID())==plyid or tostring(v:UserID())==plyid then
@@ -255,7 +263,7 @@ end
 		end
 		return IsValid(cl) and cl:IsPlayer() and cl or nil
 	end
-	
+
 
 -- Watch system
 
@@ -264,9 +272,9 @@ end
 		if fullpath==nil or fullpath=="" then return false end
 
 		local t=file.Time(fullpath,searchpath or "MOD")
-		
+
 		if not t or t==0 then return false end
-		
+
 		return t
 	end
 
@@ -274,7 +282,7 @@ end
 	local i=0
 	hook.Add("Think",Tag.."_watchlist",function()
 		if not watchlist[1] then return end
-		
+
 		i=i+1
 		local entry = watchlist[i]
 		if not entry then
@@ -282,21 +290,21 @@ end
 			entry = watchlist[1]
 			if not entry then return end
 		end
-		
+
 		local newtime = FileTime(entry.path,entry.searchpath)
 		local oldtime = entry.time
 		if newtime and newtime~=oldtime then
-			
+
 			entry.time = newtime
-			
+
 			Msg"[LuaDev] Refresh " print(unpack(entry.cmd))
-			
+
 			RunConsoleCommand(unpack(entry.cmd))
-			
+
 		end
-		
+
 	end)
-	
+
 -- compression
 
 	function Compress( data )
@@ -312,7 +320,7 @@ end
 			net.WriteUInt( 0, 24 )
 			return false
 		end
-		
+
 		local compressed = Compress( data )
 		local len = compressed:len()
 		net.WriteUInt( len, 24 )
@@ -323,7 +331,7 @@ end
 	function ReadCompressed()
 		local len = net.ReadUInt( 24 )
 		if len==0 then return "" end
-		
+
 		return Decompress( net.ReadData( len ) )
 	end
 
@@ -348,7 +356,7 @@ local LUADEV_EXECUTE_FUNCTION=xpcall
 local LUADEV_COMPILE_STRING=CompileString
 local mt= {
 	__tostring=function(self) return self[1] end,
-	
+
 	__index={
 		set=function(self,what) self[1]=what end,
 		get=function(self,what) return self[1] end,
@@ -362,35 +370,35 @@ function Run(script,info,extra)
 	if CLIENT and not extra and info and istable(info) then
 		return luadev.RunOnSelf(script,"COMPAT",{ply=info.ply})
 	end
-	
+
 	info = info or "??ANONYMOUS??"
 	if not isstring(info) then
 		debug.Trace()
 		ErrorNoHalt("LuaDev Warning: info type mismatch: "..type(info)..': '..tostring(info))
 	end
-	
+
 	-- STAGE_PREPROCESS
 	local ret,newinfo = LuaDevProcess(STAGE_PREPROCESS,script,info,extra,nil)
-	
+
 		if ret == false then return end
 		if ret ~=nil and ret~=true then script = ret end
-	
+
 		if newinfo then info = newinfo end
-	
+
 	-- STAGE_PREPROCESSING
 	rawset(strobj,1,script)
 		local ret = LuaDevProcess(STAGE_PREPROCESSING,strobj,info,extra,nil)
 	script = rawget(strobj,1)
-	
+
 	if not script then
 		return false,"no script"
 	end
-	
+
 	-- Compiling
-	
+
 	local func = LUADEV_COMPILE_STRING(script,tostring(info),false)
 	if not func or isstring( func )  then  compileerr = func or true  func = false end
-	
+
 	local ret = LuaDevProcess(STAGE_COMPILED,script,info,extra,func)
 		-- replace function
 		if ret == false then return end
@@ -404,32 +412,32 @@ function Run(script,info,extra)
 			return false,"Syntax error: "..tostring(compileerr)
 		end
 	end
-	
+
 	lastextra = extra
 	lastinfo = info
 	lastscript = script
 	lastfunc = func
-	
+
 	ProcessSpecial(1,script,info,extra)
-	
+
 	local args = extra and extra.args and (istable(extra.args) and extra.args or {extra.args})
 	if not args then args=nil end
 
-	
+
 	-- Run the stuff
 	-- because garry's runstring has social engineer sexploits and such
 	local errormessage
 	local function LUADEV_TRACEBACK(errmsg)
 		errormessage = errmsg
 		local tracestr = debug.traceback(errmsg,2)
-		
+
 		-- Tidy up the damn long trace
 		local p1=tracestr:find("LUADEV_EXECUTE_FUNCTION",1,true)
 		if p1 then
 			local p2=0
 			while p2 and p2<p1 do
 				local new=tracestr:find("\n",p2+1,true)
-		
+
 				if new>p1 then
 					tracestr=tracestr:sub(1,new)
 					break
@@ -437,31 +445,31 @@ function Run(script,info,extra)
 				p2=new
 			end
 		end
-		
+
 		ErrorNoHalt('[ERROR] '..tracestr   )--   ..'\n')
 	end
 
 	local LUADEV_EXECUTE_FUNCTION=xpcall
 	local returnvals = {LUADEV_EXECUTE_FUNCTION(func,LUADEV_TRACEBACK,args and unpack(args) or nil)}
 	local ok = returnvals[1] table.remove(returnvals,1)
-	
+
 	-- STAGE_POST
 	local ret = LuaDevProcess(STAGE_POST,script,info,extra,func,args,ok,returnvals)
 	ProcessSpecial(2,script,info,extra)
-	
+
 	if not ok then
 		return false,errormessage
 	end
-	
+
 	return ok,returnvals
 end
 
 
 function RealFilePath(name)
 	local searchpath = "MOD"
-	
+
 	local RelativePath='lua/'..name
-	
+
 	if name:find("^lua/") then -- search cache
 		name=name:gsub("^lua/","")
 		RelativePath=name
@@ -473,7 +481,7 @@ function RealFilePath(name)
 		name=name:gsub("^data/","")
 		RelativePath='data/'..name
 	end
-	
+
 	if not file.Exists(RelativePath,searchpath) then return nil end
 	return RelativePath,searchpath
 end
@@ -488,9 +496,9 @@ function AutoComplete(cmd,commandName,args)
 	local path = string.GetPathFromFilename(name)
 
 	local searchpath = "MOD"
-	
+
 	local RelativePath='lua/'..(name or "")
-	
+
 	if name:find("^lua/") then -- search cache
 		name=name:gsub("^lua/","")
 		RelativePath=name
@@ -502,9 +510,9 @@ function AutoComplete(cmd,commandName,args)
 		name=name:gsub("^data/","")
 		RelativePath='data/'..name
 	end
-	
+
 	local searchstr = RelativePath.."*"
-	
+
 	local files,folders=file.Find(searchstr,searchpath or "MOD")
 	files=files or {}
 	-- Filter out any files that don't end in ".lua".
