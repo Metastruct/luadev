@@ -110,7 +110,7 @@ add("keysm", function(ply, line, table, search)
 	search = search and search:lower() or ""
 	return luadev.RunOnClient(
 		"local t={} for k,v in pairs(" .. table .. ") do t[#t+1]=tostring(k) end table.sort(t) for k,v in pairs(t) do if string.find(v:lower(),\"" .. search .. "\",1,true) then print(v) end end",
-		X(ply,"keys"), {ply=ply}
+		ply, X(ply,"keysm"), {ply=ply}
 	)
 end)
 
