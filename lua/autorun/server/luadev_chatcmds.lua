@@ -103,6 +103,17 @@ add("keys", function(ply, line, table, search)
 	)
 end)
 
+add("keysm", function(ply, line, table, search)
+	if not line or line=="" then return end
+	if luadev.ValidScript then local valid,err = luadev.ValidScript('x('..table..')','keys') if not valid then return false,err end end
+
+	search = search and search:lower() or ""
+	return luadev.RunOnClient(
+		"local t={} for k,v in pairs(" .. table .. ") do t[#t+1]=tostring(k) end table.sort(t) for k,v in pairs(t) do if string.find(v:lower(),\"" .. search .. "\",1,true) then print(v) end end",
+		X(ply,"keys"), {ply=ply}
+	)
+end)
+
 add("printc", function(ply, line, target)
 	if not line or line=="" then return end
 	line = "easylua.PrintOnServer(" .. line .. ")"
