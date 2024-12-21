@@ -127,7 +127,7 @@ hook.Add("Think", "LuaDev-Socket", function()
 		return
 	end
 
-	cl:settimeout(0)
+	cl:settimeout(1)
 
 	local protocol = cl:receive("*l")
 	local method
