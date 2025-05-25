@@ -116,6 +116,7 @@ assert(sock:bind("127.0.0.1", 27099))
 sock:settimeout(0)
 sock:setoption("reuseaddr", true)
 assert(sock:listen(0))
+luadev.socketdev = sock -- in case something fucks up, we wanna be able to call sock:close() later
 
 hook.Add("Think", "LuaDev-Socket", function()
 	local cl = sock:accept()
@@ -139,7 +140,7 @@ hook.Add("Think", "LuaDev-Socket", function()
 	end
 
 	if method and methods[method] then
-		methods[method](cl)
+		pcall(methods[method], cl)
 	end
 
 	cl:shutdown()
