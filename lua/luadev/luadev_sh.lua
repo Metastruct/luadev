@@ -179,8 +179,10 @@ end
 				end
 
 				local gmod_tool=weapons.GetStored("gmod_tool")
-				if _G.TOOL and gmod_tool and gmod_tool.Tool then
-					gmod_tool.Tool[val] = _G.TOOL
+				if gmod_tool and gmod_tool.Tool then
+					gmod_tool.Tool[val] = tbl
+				else
+					Print("no gmod_tool or it has no Tool table")
 				end
 
 
