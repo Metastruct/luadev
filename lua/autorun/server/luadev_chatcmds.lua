@@ -47,15 +47,24 @@ add("lc", function(ply, line, target)
 end)
 
 add("lsc", function(ply, line, target)
-	local script = string.sub(line, string.find(line, target, 1, true)+#target+1)
+	if not line or line=="" or not target or target=="" then return false,"invalid target" end
+	local target_start = string.find(line, target, 1, true)
+	if not target_start then return false,"invalid target" end
+
+	local script = string.sub(line, target_start+#target+1):Trim()
+	if script=="" then return false,"invalid script" end
 	if luadev.ValidScript then local valid,err = luadev.ValidScript(script,'lsc') if not valid then return false,err end end
 	
-	easylua.Start(ply) -- for _G.we -> #us
-	local ent = easylua.FindEntity(target)
-	if type(ent) == 'table' then
-		ent = ent.get()
-	end
+	local ok, ent = pcall(function()
+		easylua.Start(ply) -- for _G.we -> #us
+		local found = easylua.FindEntity(target)
+		if type(found) == 'table' then
+			found = found.get()
+		end
+		return found
+	end)
 	easylua.End()
+	if not ok then return false,ent end
 	
 	return luadev.RunOnClient(script,  ent,  X(ply,"lsc"), {ply=ply})
 end)
@@ -96,9 +105,9 @@ add("keys", function(ply, line, table, search)
 	if not line or line=="" then return end
 	if luadev.ValidScript then local valid,err = luadev.ValidScript('x('..table..')','keys') if not valid then return false,err end end
 
-	search = search and search:lower() or ""
+	search = ("%q"):format(search and search:lower() or "")
 	return luadev.RunOnServer(
-		"local t={} for k,v in pairs(" .. table .. ") do t[#t+1]=tostring(k) end table.sort(t) for k,v in pairs(t) do if string.find(v:lower(),\"" .. search .. "\",1,true) then print(v) end end",
+		"local t={} for k,v in pairs(" .. table .. ") do t[#t+1]=tostring(k) end table.sort(t) for k,v in pairs(t) do if string.find(v:lower()," .. search .. ",1,true) then print(v) end end",
 		X(ply,"keys"), {ply=ply}
 	)
 end)
@@ -107,9 +116,9 @@ add("keysm", function(ply, line, table, search)
 	if not line or line=="" then return end
 	if luadev.ValidScript then local valid,err = luadev.ValidScript('x('..table..')','keys') if not valid then return false,err end end
 
-	search = search and search:lower() or ""
+	search = ("%q"):format(search and search:lower() or "")
 	return luadev.RunOnClient(
-		"local t={} for k,v in pairs(" .. table .. ") do t[#t+1]=tostring(k) end table.sort(t) for k,v in pairs(t) do if string.find(v:lower(),\"" .. search .. "\",1,true) then print(v) end end",
+		"local t={} for k,v in pairs(" .. table .. ") do t[#t+1]=tostring(k) end table.sort(t) for k,v in pairs(t) do if string.find(v:lower()," .. search .. ",1,true) then print(v) end end",
 		ply, X(ply,"keysm"), {ply=ply}
 	)
 end)
