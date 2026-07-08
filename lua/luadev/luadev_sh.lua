@@ -201,7 +201,7 @@ end
 				if CLIENT then
 					local tbl = _G.EFFECT _G.EFFECT = nil
 					if tbl then
-						effects.Register(_G.EFFECT,val)
+						effects.Register(tbl,val)
 					end
 				end
 			end,
@@ -246,7 +246,7 @@ end
 		end
 		if not cl then
 			for k,v in pairs(player.GetAll()) do
-				if string.find(v:Name(),plyid) then
+				if string.find(v:Name(),plyid,1,true) then
 					cl=v
 					break
 				end
@@ -399,6 +399,7 @@ function Run(script,info,extra)
 	-- Compiling
 
 	local func = LUADEV_COMPILE_STRING(script,tostring(info),false)
+	local compileerr
 	if not func or isstring( func )  then  compileerr = func or true  func = false end
 
 	local ret = LuaDevProcess(STAGE_COMPILED,script,info,extra,func)
@@ -452,7 +453,12 @@ function Run(script,info,extra)
 	end
 
 	local LUADEV_EXECUTE_FUNCTION=xpcall
-	local returnvals = {LUADEV_EXECUTE_FUNCTION(func,LUADEV_TRACEBACK,args and unpack(args) or nil)}
+	local returnvals
+	if args then
+		returnvals = {LUADEV_EXECUTE_FUNCTION(func,LUADEV_TRACEBACK,unpack(args))}
+	else
+		returnvals = {LUADEV_EXECUTE_FUNCTION(func,LUADEV_TRACEBACK)}
+	end
 	local ok = returnvals[1] table.remove(returnvals,1)
 
 	-- STAGE_POST
@@ -468,6 +474,7 @@ end
 
 
 function RealFilePath(name)
+	if not isstring(name) or name=="" then return nil end
 	local searchpath = "MOD"
 
 	local RelativePath='lua/'..name
@@ -587,8 +594,8 @@ function COMMAND(str,func,complete)
 			func(pl,cmds,strcmd,id)
 		end)
 	else
-		concommand.Add('lua_'..str,function(_,_,cmds,strcmd)
-			func(pl,cmds,strcmd,str)
+		concommand.Add('lua_'..str,function(ply,_,cmds,strcmd)
+			func(IsValid(ply) and ply or LocalPlayer(),cmds,strcmd,str)
 		end,(not complete and function(...) return AutoComplete(str,...) end) or nil)
 	end
 end

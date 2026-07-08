@@ -131,13 +131,13 @@ local function buildParser(input)
 
 	if argStr and funcStr then
 		local codeFull = string.format("return function(%s)\n%s\nend", argStr, makePrefix(funcStr))
-		local funcFactory = CompileString(codeFull, "funcfactory")
+		local funcFactory = CompileString(codeFull, "funcfactory", false)
 
-		if getfenv(1) then
+		if isfunction(funcFactory) and getfenv(1) then
 			setfenv(funcFactory, getfenv(1))
 		end
 
-		if funcFactory then
+		if isfunction(funcFactory) then
 			return funcFactory()
 		end
 	end

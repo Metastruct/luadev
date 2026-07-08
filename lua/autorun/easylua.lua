@@ -66,7 +66,7 @@ function easylua.Print(...)
 		Msg(string.format("[ELua %s] ", IsValid(me) and me:Nick() or "Sv"))
 
 		for key, value in pairs(args) do
-			str = str .. type(value) == "string" and value or luadata.ToString(value) or tostring(value)
+			str = str .. (type(value) == "string" and value or (luadata and luadata.ToString(value) or tostring(value)))
 
 			if key ~= #args then
 				str = str .. ","
@@ -84,7 +84,7 @@ if SERVER then
 		local now = RealTime()
 		local nextspam = spams[pl] or 0
 		if now>nextspam then
-			nextspam = now + len>100 and 3 or 1
+			nextspam = now + (len>100 and 3 or 1)
 			spams[pl] = nextspam
 			return true
 		else
@@ -286,7 +286,7 @@ function easylua.FindEntity(str)
 	end
 
 	-- search RealName
-	if _R.Player.RealName then
+	if _R.Player.RealNick then
 		for _, ply in ipairs(player.GetAll()) do
 			if comparenick(ply:RealNick(), str) then
 				return ply
@@ -353,6 +353,7 @@ function easylua.FindEntity(str)
 			end
 		end
 
+		if #found == 0 then return NULL end
 		return found[math.Clamp(idx%#found, 1, #found)] or NULL
 	end
 end
@@ -435,7 +436,10 @@ function easylua.Start(ply)
 
 	ply = ply or CLIENT and LocalPlayer() or nil
 
-	if not ply or not IsValid(ply) then return end
+	if not ply or not IsValid(ply) then
+		started = false
+		return
+	end
 
 	local vars = {}
 		local trace = util.QuickTrace(ply:EyePos(), ply:GetAimVector() * 10000, {ply, ply:GetVehicle()})
@@ -465,7 +469,9 @@ function easylua.Start(ply)
 		vars.length = trace.StartPos:Distance(trace.HitPos)
 
 		vars.copy = s.CopyToClipboard
-		vars.create = s.CreateEntity
+		if SERVER then
+			vars.create = s.CreateEntity
+		end
 		vars.prints = s.PrintOnServer
 
 		if vars.this:IsValid() then
@@ -501,7 +507,7 @@ function easylua.End()
 
 	if s.vars then
 		for key, value in pairs(s.vars) do
-			if s.oldvars and s.oldvars[key] then
+			if s.oldvars and s.oldvars[key] ~= nil then
 				rawset(_G, key, s.oldvars[key])
 			else
 				rawset(_G, key, nil)
@@ -774,8 +780,13 @@ do -- all
 	them = CreateAllFunction(function()
 		local me = _G.me
 		local we = _G.we or {}
-		table.RemoveByValue(we, me)
-		return we
+		local t = {}
+		for k,v in ipairs(we) do
+			if v ~= me then
+				t[#t+1] = v
+			end
+		end
+		return t
 	end)
 	friends = CreateAllFunction(function()
 		local me = _G.me
