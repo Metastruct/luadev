@@ -111,20 +111,49 @@ local methods = {
 	end
 }
 
-local sock = assert(socket.tcp())
-assert(sock:bind("127.0.0.1", 27099))
-sock:settimeout(0)
+local socketHook = "LuaDev-Socket"
+
+if luadev.socketdev then
+	hook.Remove("Think", socketHook)
+	pcall(luadev.socketdev.close, luadev.socketdev)
+	luadev.socketdev = nil
+end
+
+local function closeSocket(sock)
+	if not sock then return end
+	pcall(sock.shutdown, sock)
+	pcall(sock.close, sock)
+end
+
+local sock, err = socket.tcp()
+if not sock then
+	luadevPrint("Unable to create socket:", err)
+	return
+end
+
 sock:setoption("reuseaddr", true)
-assert(sock:listen(0))
+local ok, err = sock:bind("127.0.0.1", 27099)
+if not ok then
+	luadevPrint("Unable to bind SocketDev:", err)
+	closeSocket(sock)
+	return
+end
+sock:settimeout(0)
+local ok, err = sock:listen(0)
+if not ok then
+	luadevPrint("Unable to listen for SocketDev:", err)
+	closeSocket(sock)
+	return
+end
 luadev.socketdev = sock -- in case something fucks up, we wanna be able to call sock:close() later
 
-hook.Add("Think", "LuaDev-Socket", function()
+hook.Add("Think", socketHook, function()
 	local cl = sock:accept()
 	if not cl then return end
 
 	if cl:getpeername() ~= "127.0.0.1" then
 		luadevPrint("Refused", cl:getpeername())
-		cl:shutdown()
+		closeSocket(cl)
 		return
 	end
 
@@ -140,8 +169,11 @@ hook.Add("Think", "LuaDev-Socket", function()
 	end
 
 	if method and methods[method] then
-		pcall(methods[method], cl)
+		local ok, err = pcall(methods[method], cl)
+		if not ok then
+			luadevPrint("SocketDev method error:", err)
+		end
 	end
 
-	cl:shutdown()
+	closeSocket(cl)
 end)
