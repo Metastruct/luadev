@@ -38,7 +38,7 @@ local function ClearTargets(targets)
 	local i=1
 	local target=targets[i]
 	while target do
-		if not IsValid(target) then
+		if not IsValid(target) or not target:IsPlayer() then
 			table.remove(targets,i)
 			i=i-1
 		end
@@ -118,7 +118,8 @@ end
 
 
 function RunOnShared(...)
-	RunOnClients(...)
+	local ok,err = RunOnClients(...)
+	if not ok then return ok,err end
 	return RunOnServer(...)
 end
 
@@ -150,6 +151,12 @@ function _ReceivedData(len, ply)
 	
 	local script = ReadCompressed() -- WriteCompressed(data)
 	local decoded=net.ReadTable()
+	if not isstring(script) then
+		return RejectCommand(ply,"bad script")
+	end
+	if not istable(decoded) then
+		return RejectCommand(ply,"bad data table")
+	end
 	decoded.src=script
 	
 	
@@ -160,6 +167,9 @@ function _ReceivedData(len, ply)
 	if not istable(extra) then
 		return RejectCommand(ply,"bad extra table")
 	end
+	if target~=TO_SERVER and target~=TO_CLIENT and target~=TO_CLIENTS and target~=TO_SHARED then
+		return RejectCommand(ply,"bad target")
+	end
 	extra.ply=ply
 	
 	local can, msg = CanLuaDev(ply,script,nil,target,target_ply,extra)
@@ -167,7 +177,7 @@ function _ReceivedData(len, ply)
 		return RejectCommand(ply,msg)
 	end
 
-	if TransmitHook(data)~=nil then return end
+	if TransmitHook(decoded)~=nil then return end
 	
 	local identifier = GetPlayerIdentifier(ply,info)
 	local ok,err
