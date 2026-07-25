@@ -121,7 +121,9 @@ function easylua.FindEntity(str)
 	if not str then return NULL end
 
 	str = tostring(str)
-
+	
+	if #str:Trim() == 0 then return NULL end
+	
 	if str == "#this" and IsEntity(this) and this:IsValid() then
 		return this
 	end
