@@ -1,6 +1,6 @@
 easylua = {} local s = easylua
 
-local _R = debug.getregistry()
+local Player = FindMetaTable"Player"
 
 local function compare(a, b)
 
@@ -288,7 +288,7 @@ function easylua.FindEntity(str)
 	end
 
 	-- search RealName
-	if _R.Player.RealName then
+	if Player.RealName then
 		for _, ply in ipairs(player.GetAll()) do
 			if comparenick(ply:RealNick(), str) then
 				return ply
