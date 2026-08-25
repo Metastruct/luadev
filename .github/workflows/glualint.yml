@@ -1,0 +1,21 @@
+name: GLua Lint
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "**.lua"
+      - ".glualint.json"
+      - ".github/workflows/glualint.yml"
+  pull_request:
+    paths:
+      - "**.lua"
+      - ".glualint.json"
+      - ".github/workflows/glualint.yml"
+
+jobs:
+  lint:
+    uses: FPtje/GLuaFixer/.github/workflows/glualint.yml@master
+    with:
+      config: ".glualint.json"
