@@ -16,5 +16,5 @@ if SERVER then
 	AddCSLuaFile 'luadev/luadev.lua'
 	AddCSLuaFile 'luadev/socketdev.lua'
 
-	AddCSLuaFile 'gterm_packages/luadev.lua`
+	AddCSLuaFile 'gterm_packages/luadev.lua'
 end

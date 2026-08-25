@@ -1,9 +1,9 @@
-tinylua = setmetatable({}, { __call = function(self, ...) return self.Wrap(...) end})
+tinylua = setmetatable({}, { __call = function(self, ...) return self.Wrap(...) end })
 local INTERNAL = {}
 local META = {}
 
 local function pack(...) -- Convenient argument packer
-	local len, tbl = select('#', ...), {...}
+	local len, tbl = select('#', ...), { ... }
 	local packFuncs = {}
 
 	function packFuncs.unpack()
@@ -24,11 +24,11 @@ local function Wrap(input)
 	local values = {}
 	local meta = {}
 
-	for ind, val in pairs(input)do
+	for ind, val in pairs(input) do
 		values[(tonumber(ind) and val or ind)] = val
 	end
 
-	for ind, val in pairs(META)do
+	for ind, val in pairs(META) do
 		meta[ind] = val
 	end
 
@@ -59,7 +59,7 @@ local function performCall(tbl, callback)
 	if table.Count(errors) == calls then
 		if calls ~= 0 then
 			local _, error = next(errors, nil)
-			MsgC(Color(235, 111, 111), "[tinylua] "..error)
+			MsgC(Color(235, 111, 111), "[tinylua] " .. error)
 		else
 			MsgC(Color(235, 111, 111), "[tinylua] No results!\n")
 			return
@@ -118,8 +118,8 @@ tinylua.Wrap = Wrap
 
 -- INTERNAL Extensions
 local function makePrefix(input)
-	if not input:match("\n") and isfunction(CompileString("return "..input, "", false)) then
-		return "return "..input
+	if not input:match("\n") and isfunction(CompileString("return " .. input, "", false)) then
+		return "return " .. input
 	end
 
 	return input
@@ -167,7 +167,7 @@ function INTERNAL:filter(input)
 end
 
 function INTERNAL:set(vars, val)
-	vars = (istable(vars) and vars or {vars})
+	vars = (istable(vars) and vars or { vars })
 	return performCall(self, function(results, source, ent)
 		for _, var in ipairs(vars) do
 			ent[var] = val

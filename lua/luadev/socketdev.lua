@@ -2,7 +2,7 @@
 
 local function requireExists(moduleName)
 	local osSuffix = assert(
-		(system.IsWindows() and (jit.arch~="x64" and "win32" or "win64"))
+		(system.IsWindows() and (jit.arch ~= "x64" and "win32" or "win64"))
 		or (system.IsLinux() and "linux")
 		or (system.IsOSX() and "osx"),
 		"couldn't determine system type?"
@@ -14,7 +14,7 @@ local function requireExists(moduleName)
 end
 
 local function luadevPrint(...)
-	Msg"[LuaDev] "
+	Msg "[LuaDev] "
 	print(...)
 end
 
@@ -66,13 +66,15 @@ local methods = {
 	end,
 	ent = function(sock)
 		local who = sock:receive("*l")
-		local contents = string.format("ENT = {}; local ENT=ENT; %s; scripted_ents.Register(ENT, '%s')", sock:receive("*a"), who:sub(0, -5))
+		local contents = string.format("ENT = {}; local ENT=ENT; %s; scripted_ents.Register(ENT, '%s')",
+			sock:receive("*a"), who:sub(0, -5))
 		luadev.RunOnShared(contents, who)
 		system.FlashWindow()
 	end,
 	wep = function(sock)
 		local who = sock:receive("*l")
-		local contents = string.format("SWEP = {}; local SWEP=SWEP; %s; weapons.Register(SWEP, '%s')", sock:receive("*a"), who:sub(0, -5))
+		local contents = string.format("SWEP = {}; local SWEP=SWEP; %s; weapons.Register(SWEP, '%s')", sock:receive("*a"),
+			who:sub(0, -5))
 		luadev.RunOnShared(contents, who)
 		system.FlashWindow()
 	end,
