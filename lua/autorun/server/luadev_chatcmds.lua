@@ -1,9 +1,9 @@
 hook.Add("Think", "luadev_cmdsinit", function()
 	hook.Remove("Think", "luadev_cmdsinit")
 
-	local function add(cmd, callback)
+	local function add(cmd, description, callback)
 		if aowl and aowl.AddCommand then
-			aowl.AddCommand(cmd, function(ply, script, param_a, ...)
+			aowl.AddCommand(cmd, description, function(ply, script, param_a, ...)
 				local a, b
 
 				easylua.End() -- nesting not supported
@@ -26,7 +26,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 
 	local function X(ply, i) return luadev.GetPlayerIdentifier(ply, 'cmd:' .. i) end
 
-	add("l", function(ply, line, target)
+	add("l", "Runs lua on the server", function(ply, line, target)
 		if not line or line == "" then return false, "invalid script" end
 		if luadev.ValidScript then
 			local valid, err = luadev.ValidScript(line, "l")
@@ -35,7 +35,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		return luadev.RunOnServer(line, X(ply, "l"), { ply = ply })
 	end)
 
-	add("ls", function(ply, line, target)
+	add("ls", "Runs lua shared (server and all clients)", function(ply, line, target)
 		if not line or line == "" then return false, "invalid script" end
 		if luadev.ValidScript then
 			local valid, err = luadev.ValidScript(line, "ls")
@@ -44,7 +44,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		return luadev.RunOnShared(line, X(ply, "ls"), { ply = ply })
 	end)
 
-	add("lc", function(ply, line, target)
+	add("lc", "Runs lua on all clients", function(ply, line, target)
 		if not line or line == "" then return end
 		if luadev.ValidScript then
 			local valid, err = luadev.ValidScript(line, "lc")
@@ -53,7 +53,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		return luadev.RunOnClients(line, X(ply, "lc"), { ply = ply })
 	end)
 
-	add("lsc", function(ply, line, target)
+	add("lsc", "Runs lua on a specific player", function(ply, line, target)
 		local script = string.sub(line, string.find(line, target, 1, true) + #target + 1)
 		if luadev.ValidScript then
 			local valid, err = luadev.ValidScript(script, 'lsc')
@@ -70,7 +70,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		return luadev.RunOnClient(script, ent, X(ply, "lsc"), { ply = ply })
 	end)
 	local sv_allowcslua = GetConVar "sv_allowcslua"
-	add("lm", function(ply, line, target)
+	add("lm", "Runs lua on your own client (me)", function(ply, line, target)
 		if not line or line == "" then return end
 		if luadev.ValidScript then
 			local valid, err = luadev.ValidScript(line, 'lm')
@@ -82,7 +82,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		luadev.RunOnClient(line, ply, X(ply, "lm"), { ply = ply })
 	end)
 
-	add("lb", function(ply, line, target)
+	add("lb", "Runs lua on both the server and your own client", function(ply, line, target)
 		if not line or line == "" then return end
 		if luadev.ValidScript then
 			local valid, err = luadev.ValidScript(line, 'lb')
@@ -93,7 +93,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		return luadev.RunOnServer(line, X(ply, "lb"), { ply = ply })
 	end)
 
-	add("print", function(ply, line, target)
+	add("print", "Prints a value in the server console", function(ply, line, target)
 		if not line or line == "" then return end
 		if luadev.ValidScript then
 			local valid, err = luadev.ValidScript('x(' .. line .. ')', 'print')
@@ -103,7 +103,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		return luadev.RunOnServer("print(" .. line .. ")", X(ply, "print"), { ply = ply })
 	end)
 
-	add("table", function(ply, line, target)
+	add("table", "Prints a table in the server console", function(ply, line, target)
 		if not line or line == "" then return end
 		if luadev.ValidScript then
 			local valid, err = luadev.ValidScript('x(' .. line .. ')', 'table')
@@ -113,7 +113,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		return luadev.RunOnServer("PrintTable(" .. line .. ")", X(ply, "table"), { ply = ply })
 	end)
 
-	add("keys", function(ply, line, table, search)
+	add("keys", "Lists the keys of a table on the server", function(ply, line, table, search)
 		if not line or line == "" then return end
 		if luadev.ValidScript then
 			local valid, err = luadev.ValidScript('x(' .. table .. ')', 'keys')
@@ -130,7 +130,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		)
 	end)
 
-	add("keysm", function(ply, line, table, search)
+	add("keysm", "Lists the keys of a table on your own client (me)", function(ply, line, table, search)
 		if not line or line == "" then return end
 		if luadev.ValidScript then
 			local valid, err = luadev.ValidScript('x(' .. table .. ')', 'keys')
@@ -147,7 +147,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		)
 	end)
 
-	add("printc", function(ply, line, target)
+	add("printc", "Prints a value from every client in the server console", function(ply, line, target)
 		if not line or line == "" then return end
 		line = "easylua.PrintOnServer(" .. line .. ")"
 		if luadev.ValidScript then
@@ -158,7 +158,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		return luadev.RunOnClients(line, X(ply, "printc"), { ply = ply })
 	end)
 
-	add("printm", function(ply, line, target)
+	add("printm", "Prints a value from your own client (me) in the server console", function(ply, line, target)
 		if not line or line == "" then return end
 		line = "easylua.PrintOnServer(" .. line .. ")"
 		if luadev.ValidScript then
@@ -169,7 +169,7 @@ hook.Add("Think", "luadev_cmdsinit", function()
 		luadev.RunOnClient(line, ply, X(ply, "printm"), { ply = ply })
 	end)
 
-	add("printb", function(ply, line, target)
+	add("printb", "Prints a value on both the server and your own client", function(ply, line, target)
 		if not line or line == "" then return end
 		if luadev.ValidScript then
 			local valid, err = luadev.ValidScript('x(' .. line .. ')', 'printb')
